@@ -23,13 +23,11 @@ public class ProductController {
     }
 
     @GetMapping("/all")
-//    @ApiOperation("Returns a list of all products.")
     public List<ProductDTO> findAllProducts() {
         return productService.findAllProducts();
     }
 
     @GetMapping("/{id}")
-//    @ApiOperation("Returns a product by its id.")
     public ProductDTO findProductById(@PathVariable Integer id) {
         return productService.findProductById(id);
     }
