@@ -11,7 +11,9 @@ import java.util.Optional;
 
 
 @Repository
-public interface ProductRepository extends JpaRepository<Product, Integer> {
+public interface ProductRepository extends JpaRepository<Product, Long> {
+
+    boolean existsByName(String name);
 
     @Query("SELECT new com.juubsouza.jsdrugstore.model.dto.ProductDTO(p.id, p.name, p.manufacturer, pr.price, s.stock) FROM Product p " +
             "JOIN Price pr ON pr.product_id = p.id " +
