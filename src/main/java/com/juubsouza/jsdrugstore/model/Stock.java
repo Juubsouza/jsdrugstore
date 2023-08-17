@@ -1,6 +1,5 @@
 package com.juubsouza.jsdrugstore.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

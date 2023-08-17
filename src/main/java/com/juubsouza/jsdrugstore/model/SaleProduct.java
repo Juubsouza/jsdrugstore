@@ -5,18 +5,23 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Price {
+public class SaleProduct {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private BigDecimal price;
-    private Long product_id;
+    private Integer quantity;
+
+    @ManyToOne
+    @JoinColumn(name = "product_id")
+    private Product product;
+
+    @ManyToOne
+    @JoinColumn(name = "sale_id")
+    private Sale sale;
 }

@@ -22,5 +22,5 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             "JOIN Price pr ON pr.product_id = p.id " +
             "JOIN Stock s ON s.product_id = p.id " +
             "WHERE p.id = ?1")
-    Optional<ProductDTO> findProductById(Integer id);
+    Optional<ProductDTO> findProductById(Long id);
 }

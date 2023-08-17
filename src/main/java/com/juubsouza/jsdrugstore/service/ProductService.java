@@ -21,7 +21,7 @@ public class ProductService {
         return productRepository.findAllProducts();
     }
 
-    public ProductDTO findProductById(Integer id) {
+    public ProductDTO findProductById(Long id) {
         return productRepository.findProductById(id).orElse(null);
     }
 }

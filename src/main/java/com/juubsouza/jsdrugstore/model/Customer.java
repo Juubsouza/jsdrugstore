@@ -1,22 +1,26 @@
 package com.juubsouza.jsdrugstore.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.math.BigDecimal;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Price {
+public class Customer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private BigDecimal price;
-    private Long product_id;
+    private String firstName;
+
+    private String lastName;
+
+    private String email;
 }

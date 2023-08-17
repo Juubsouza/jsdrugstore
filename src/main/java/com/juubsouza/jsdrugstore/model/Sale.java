@@ -11,12 +11,25 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Price {
+public class Sale {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private BigDecimal price;
-    private Long product_id;
+    private String paymentMethod;
+
+    private String paymentStatus;
+
+    private String shippingStatus;
+
+    private BigDecimal total;
+
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
+
+    @ManyToOne
+    @JoinColumn(name = "seller_id")
+    private Seller seller;
 }

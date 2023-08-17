@@ -5,18 +5,21 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Price {
+public class Address {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private BigDecimal price;
-    private Long product_id;
+    private String details;
+
+    private String city;
+
+    private String state;
+
+    private String country;
 }
