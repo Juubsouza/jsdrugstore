@@ -17,15 +17,15 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query("SELECT new com.juubsouza.jsdrugstore.model.dto.ProductDTO(p.id, p.name, p.manufacturer, p.price.price, p.stock.stock) " +
             "FROM Product p")
-    List<ProductDTO> findAllProducts();
+    List<ProductDTO> findAllDTOs();
 
     @Query("SELECT new com.juubsouza.jsdrugstore.model.dto.ProductDTO(p.id, p.name, p.manufacturer, p.price.price, p.stock.stock)" +
             "FROM Product p " +
             "WHERE p.id = ?1")
-    Optional<ProductDTO> findProductById(Long id);
+    Optional<ProductDTO> findDTOById(Long id);
 
     @Query("SELECT new com.juubsouza.jsdrugstore.model.dto.ProductDTO(p.id, p.name, p.manufacturer, p.price.price, p.stock.stock)" +
             "FROM Product p " +
-            "WHERE p.name = ?1")
-    Optional<ProductDTO> findProductByName(String name);
+            "WHERE p.name LIKE %?1%")
+    List<ProductDTO> findDTOsByName(String name);
 }

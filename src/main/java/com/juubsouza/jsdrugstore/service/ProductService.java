@@ -30,31 +30,26 @@ public class ProductService {
         this.stockRepository = stockRepository;
     }
 
-    @Transactional
-    public ProductDTO addProduct(ProductDTOAdd productDTOAdd) throws RuntimeException{
-        try {
-            Product product = new Product();
-            product.setName(productDTOAdd.getName());
-            product.setManufacturer(productDTOAdd.getManufacturer());
+    public ProductDTO addProduct(ProductDTOAdd productDTOAdd) {
+        Product product = new Product();
+        product.setName(productDTOAdd.getName());
+        product.setManufacturer(productDTOAdd.getManufacturer());
 
-            Price price = new Price();
-            price.setPrice(productDTOAdd.getPrice());
+        Price price = new Price();
+        price.setPrice(productDTOAdd.getPrice());
 
-            Stock stock = new Stock();
-            stock.setStock(productDTOAdd.getStock());
+        Stock stock = new Stock();
+        stock.setStock(productDTOAdd.getStock());
 
-            Product createdProduct = productRepository.save(product);
+        Product createdProduct = productRepository.save(product);
 
-            price.setProduct(createdProduct);
-            stock.setProduct(createdProduct);
+        price.setProduct(createdProduct);
+        stock.setProduct(createdProduct);
 
-            priceRepository.save(price);
-            stockRepository.save(stock);
+        priceRepository.save(price);
+        stockRepository.save(stock);
 
-            return new ProductDTO(createdProduct.getId(), createdProduct.getName(), createdProduct.getManufacturer(), price.getPrice(), stock.getStock());
-        } catch (DataAccessException e) {
-            throw new RuntimeException("Failed to add product to the database", e);
-        }
+        return new ProductDTO(createdProduct.getId(), createdProduct.getName(), createdProduct.getManufacturer(), price.getPrice(), stock.getStock());
     }
 
     @Transactional
@@ -65,15 +60,15 @@ public class ProductService {
     }
 
     public List<ProductDTO> findAllProducts() {
-        return productRepository.findAllProducts();
+        return productRepository.findAllDTOs();
     }
 
     public ProductDTO findProductById(Long id) {
-        return productRepository.findProductById(id).orElse(null);
+        return productRepository.findDTOById(id).orElse(null);
     }
 
-    public ProductDTO findProductByName(String name) {
-        return productRepository.findProductByName(name).orElse(null);
+    public List<ProductDTO> findProductsByName(String name) {
+        return productRepository.findDTOsByName(name);
     }
 
     public boolean productExists(String name) {

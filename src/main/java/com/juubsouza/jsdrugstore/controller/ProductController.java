@@ -1,6 +1,5 @@
 package com.juubsouza.jsdrugstore.controller;
 
-import com.juubsouza.jsdrugstore.model.Product;
 import com.juubsouza.jsdrugstore.model.dto.ProductDTO;
 import com.juubsouza.jsdrugstore.model.dto.ProductDTOAdd;
 import com.juubsouza.jsdrugstore.service.ProductService;
@@ -41,8 +40,8 @@ public class ProductController {
 
     @GetMapping("/by-name={name}")
     @Operation(summary = "Find product by name", description = "Returns a product matching the provided name, if it exists")
-    public ProductDTO findProductByName(@Parameter(description = "Product name") @PathVariable String name) {
-        return productService.findProductByName(name);
+    public List<ProductDTO> findProductByName(@Parameter(description = "Product name") @PathVariable String name) {
+        return productService.findProductsByName(name);
     }
 
     @PostMapping("/add")
@@ -71,7 +70,7 @@ public class ProductController {
         }
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete={id}")
     @Operation(summary = "Delete product by id", description = "Deletes a product matching the provided id, if it exists")
     public ResponseEntity<?> deleteProduct(@Parameter(description = "Product ID") @PathVariable Long id) {
         try {

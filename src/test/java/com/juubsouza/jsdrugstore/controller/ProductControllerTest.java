@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.hamcrest.Matchers;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -50,9 +51,21 @@ public class ProductControllerTest {
         ProductDTO product = this.newMockProductDTO();
         when(productService.findProductById(any(Long.class))).thenReturn(product);
 
-        mockMvc.perform(get("/products/{id}", 1L))
+        mockMvc.perform(get("/products/by-id={id}", 1L))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", Matchers.is(product.getId().intValue()))) ;
+                .andExpect(jsonPath("$.id", Matchers.is(product.getId().intValue())));
+    }
+
+    @Test
+    public void testFindProductByName() throws Exception {
+        List<ProductDTO> products = new ArrayList<>();
+        products.add(this.newMockProductDTO());
+        when(productService.findProductsByName(anyString())).thenReturn(products);
+
+        mockMvc.perform(get("/products/by-name={name}", "Test Product"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].name", Matchers.is(products.get(0).getName())));
     }
 
     @Test
@@ -185,7 +198,7 @@ public class ProductControllerTest {
                 .andExpect(status().isInternalServerError());
     }
 
-    private ProductDTOAdd newMockProductDTOAdd(){
+    private ProductDTOAdd newMockProductDTOAdd() {
         ProductDTOAdd product = new ProductDTOAdd();
         product.setName("Test Product");
         product.setManufacturer("Test Manufacturer");
@@ -194,7 +207,7 @@ public class ProductControllerTest {
         return product;
     }
 
-    private ProductDTO newMockProductDTO(){
+    private ProductDTO newMockProductDTO() {
         ProductDTO product = new ProductDTO();
         product.setId(1L);
         product.setName("Test Product");
