@@ -18,5 +18,8 @@ public class Price {
     private Long id;
 
     private BigDecimal price;
-    private Long product_id;
+
+    @OneToOne
+    @JoinColumn(name = "product_id")
+    private Product product;
 }

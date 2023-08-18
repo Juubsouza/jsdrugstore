@@ -1,5 +1,6 @@
 package com.juubsouza.jsdrugstore.controller;
 
+import com.juubsouza.jsdrugstore.model.Product;
 import com.juubsouza.jsdrugstore.model.dto.ProductDTO;
 import com.juubsouza.jsdrugstore.model.dto.ProductDTOAdd;
 import com.juubsouza.jsdrugstore.service.ProductService;
@@ -22,7 +23,7 @@ public class ProductController {
     private final ProductService productService;
 
     @Autowired
-    public ProductController(ProductService productService){
+    public ProductController(ProductService productService) {
         this.productService = productService;
     }
 
@@ -32,10 +33,16 @@ public class ProductController {
         return productService.findAllProducts();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/by-id={id}")
     @Operation(summary = "Find product by id", description = "Returns a product matching the provided id, if it exists")
     public ProductDTO findProductById(@Parameter(description = "Product ID") @PathVariable Long id) {
         return productService.findProductById(id);
+    }
+
+    @GetMapping("/by-name={name}")
+    @Operation(summary = "Find product by name", description = "Returns a product matching the provided name, if it exists")
+    public ProductDTO findProductByName(@Parameter(description = "Product name") @PathVariable String name) {
+        return productService.findProductByName(name);
     }
 
     @PostMapping("/add")
@@ -59,6 +66,17 @@ public class ProductController {
         try {
             ProductDTO addedProduct = productService.addProduct(productDTOAdd);
             return ResponseEntity.status(HttpStatus.CREATED).body(addedProduct);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Delete product by id", description = "Deletes a product matching the provided id, if it exists")
+    public ResponseEntity<?> deleteProduct(@Parameter(description = "Product ID") @PathVariable Long id) {
+        try {
+            productService.deleteProduct(id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }

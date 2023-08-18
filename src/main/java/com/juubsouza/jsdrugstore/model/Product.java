@@ -17,4 +17,21 @@ public class Product {
 
     private String name;
     private String manufacturer;
+
+    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Price price;
+
+    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Stock stock;
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", manufacturer='" + manufacturer + '\'' +
+                ", price=" + (price != null ? price.getPrice() : null) +
+                ", stock=" + (stock != null ? stock.getStock() : null) +
+                '}';
+    }
 }

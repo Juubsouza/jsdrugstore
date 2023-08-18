@@ -8,8 +8,10 @@ import com.juubsouza.jsdrugstore.model.dto.ProductDTOAdd;
 import com.juubsouza.jsdrugstore.repository.PriceRepository;
 import com.juubsouza.jsdrugstore.repository.ProductRepository;
 import com.juubsouza.jsdrugstore.repository.StockRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,7 +31,7 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductDTO addProduct(ProductDTOAdd productDTOAdd) {
+    public ProductDTO addProduct(ProductDTOAdd productDTOAdd) throws RuntimeException{
         try {
             Product product = new Product();
             product.setName(productDTOAdd.getName());
@@ -43,16 +45,23 @@ public class ProductService {
 
             Product createdProduct = productRepository.save(product);
 
-            price.setProduct_id(createdProduct.getId());
-            stock.setProduct_id(createdProduct.getId());
+            price.setProduct(createdProduct);
+            stock.setProduct(createdProduct);
 
             priceRepository.save(price);
             stockRepository.save(stock);
 
             return new ProductDTO(createdProduct.getId(), createdProduct.getName(), createdProduct.getManufacturer(), price.getPrice(), stock.getStock());
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to add product to the database");
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Failed to add product to the database", e);
         }
+    }
+
+    @Transactional
+    public void deleteProduct(Long id) throws EntityNotFoundException {
+        Product product = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Product not found"));
+
+        productRepository.deleteById(product.getId());
     }
 
     public List<ProductDTO> findAllProducts() {
@@ -61,6 +70,10 @@ public class ProductService {
 
     public ProductDTO findProductById(Long id) {
         return productRepository.findProductById(id).orElse(null);
+    }
+
+    public ProductDTO findProductByName(String name) {
+        return productRepository.findProductByName(name).orElse(null);
     }
 
     public boolean productExists(String name) {

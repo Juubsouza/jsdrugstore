@@ -16,5 +16,8 @@ public class Stock {
     private Long id;
 
     private Integer stock;
-    private Long product_id;
+
+    @OneToOne
+    @JoinColumn(name = "product_id")
+    private Product product;
 }

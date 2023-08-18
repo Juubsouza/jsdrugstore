@@ -15,14 +15,17 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     boolean existsByName(String name);
 
-    @Query("SELECT new com.juubsouza.jsdrugstore.model.dto.ProductDTO(p.id, p.name, p.manufacturer, pr.price, s.stock) FROM Product p " +
-            "JOIN Price pr ON pr.product_id = p.id " +
-            "JOIN Stock s ON s.product_id = p.id ")
+    @Query("SELECT new com.juubsouza.jsdrugstore.model.dto.ProductDTO(p.id, p.name, p.manufacturer, p.price.price, p.stock.stock) " +
+            "FROM Product p")
     List<ProductDTO> findAllProducts();
 
-    @Query("SELECT new com.juubsouza.jsdrugstore.model.dto.ProductDTO(p.id, p.name, p.manufacturer, pr.price, s.stock) FROM Product p " +
-            "JOIN Price pr ON pr.product_id = p.id " +
-            "JOIN Stock s ON s.product_id = p.id " +
+    @Query("SELECT new com.juubsouza.jsdrugstore.model.dto.ProductDTO(p.id, p.name, p.manufacturer, p.price.price, p.stock.stock)" +
+            "FROM Product p " +
             "WHERE p.id = ?1")
     Optional<ProductDTO> findProductById(Long id);
+
+    @Query("SELECT new com.juubsouza.jsdrugstore.model.dto.ProductDTO(p.id, p.name, p.manufacturer, p.price.price, p.stock.stock)" +
+            "FROM Product p " +
+            "WHERE p.name = ?1")
+    Optional<ProductDTO> findProductByName(String name);
 }
