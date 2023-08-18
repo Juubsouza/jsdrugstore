@@ -11,7 +11,6 @@ import com.juubsouza.jsdrugstore.repository.StockRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,6 +29,7 @@ public class ProductService {
         this.stockRepository = stockRepository;
     }
 
+    @Transactional
     public ProductDTO addProduct(ProductDTOAdd productDTOAdd) {
         Product product = new Product();
         product.setName(productDTOAdd.getName());
@@ -69,6 +69,26 @@ public class ProductService {
 
     public List<ProductDTO> findProductsByName(String name) {
         return productRepository.findDTOsByName(name);
+    }
+
+    @Transactional
+    public ProductDTO updateProduct(ProductDTO productDTO) throws EntityNotFoundException {
+        Product existingProduct = productRepository.findById(productDTO.getId()).orElseThrow(() -> new EntityNotFoundException("Product not found"));
+
+        existingProduct.setName(productDTO.getName());
+        existingProduct.setManufacturer(productDTO.getManufacturer());
+
+        Price price = priceRepository.findByProductId(existingProduct.getId()).orElseThrow(() -> new EntityNotFoundException("Price not found"));
+        price.setPrice(productDTO.getPrice());
+
+        Stock stock = stockRepository.findByProductId(existingProduct.getId()).orElseThrow(() -> new EntityNotFoundException("Stock not found"));
+        stock.setStock(productDTO.getStock());
+
+        productRepository.save(existingProduct);
+        priceRepository.save(price);
+        stockRepository.save(stock);
+
+        return productDTO;
     }
 
     public boolean productExists(String name) {

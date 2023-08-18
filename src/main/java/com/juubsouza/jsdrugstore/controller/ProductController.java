@@ -3,6 +3,7 @@ package com.juubsouza.jsdrugstore.controller;
 import com.juubsouza.jsdrugstore.model.dto.ProductDTO;
 import com.juubsouza.jsdrugstore.model.dto.ProductDTOAdd;
 import com.juubsouza.jsdrugstore.service.ProductService;
+import com.juubsouza.jsdrugstore.utils.ValidationResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -47,24 +48,32 @@ public class ProductController {
     @PostMapping("/add")
     @Operation(summary = "Add a new product", description = "Adds a new product to the database")
     public ResponseEntity<?> addProduct(@Parameter(description = "Information about the product") @RequestBody ProductDTOAdd productDTOAdd) {
-        if (productDTOAdd.getName() == null || productDTOAdd.getName().isEmpty())
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Product name cannot be empty.");
+        ValidationResponse validationResponse = validadeFields(productDTOAdd.getName(), productDTOAdd.getManufacturer(),
+                productDTOAdd.getPrice(), productDTOAdd.getStock(), true, null);
 
-        if (productService.productExists(productDTOAdd.getName()))
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("There already is a product with this name in the database.");
-
-        if (productDTOAdd.getManufacturer() == null || productDTOAdd.getManufacturer().isEmpty())
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Product manufacturer cannot be empty.");
-
-        if (productDTOAdd.getPrice() == null || productDTOAdd.getPrice().compareTo(BigDecimal.ZERO) <= 0)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Product price must be greater than 0.");
-
-        if (productDTOAdd.getStock() == null || productDTOAdd.getStock() < 0)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Product stock must be greater than or equal to 0.");
+        if (validationResponse.getStatus() != HttpStatus.OK)
+            return ResponseEntity.status(validationResponse.getStatus()).body(validationResponse.getMessage());
 
         try {
             ProductDTO addedProduct = productService.addProduct(productDTOAdd);
             return ResponseEntity.status(HttpStatus.CREATED).body(addedProduct);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PostMapping("/update")
+    @Operation(summary = "Update a product", description = "Updates a product in the database")
+    public ResponseEntity<?> updateProduct(@Parameter(description = "Information about the product") @RequestBody ProductDTO productDTO) {
+        ValidationResponse validationResponse = validadeFields(productDTO.getName(), productDTO.getManufacturer(),
+                productDTO.getPrice(), productDTO.getStock(), false, productDTO.getId());
+
+        if (validationResponse.getStatus() != HttpStatus.OK)
+            return ResponseEntity.status(validationResponse.getStatus()).body(validationResponse.getMessage());
+
+        try {
+            ProductDTO updatedProduct = productService.updateProduct(productDTO);
+            return ResponseEntity.status(HttpStatus.OK).body(updatedProduct);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -79,5 +88,26 @@ public class ProductController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    private ValidationResponse validadeFields(String name, String manufacturer, BigDecimal price, Integer stock, boolean isCreating, Long id) {
+        if (!isCreating) {
+            if (id == null || id <= 0)
+                return new ValidationResponse("Product ID must be greater than zero", HttpStatus.BAD_REQUEST);
+        }
+
+        if (name == null || name.isEmpty())
+            return new ValidationResponse("Product name cannot be empty.", HttpStatus.BAD_REQUEST);
+
+        if (manufacturer == null || manufacturer.isEmpty())
+            return new ValidationResponse("Product manufacturer cannot be empty.", HttpStatus.BAD_REQUEST);
+
+        if (price == null || price.compareTo(BigDecimal.ZERO) <= 0)
+            return new ValidationResponse("Product price must be greater than 0.", HttpStatus.BAD_REQUEST);
+
+        if (stock == null || stock < 0)
+            return new ValidationResponse("Product stock must be greater than or equal to 0.", HttpStatus.BAD_REQUEST);
+
+        return new ValidationResponse("OK", HttpStatus.OK);
     }
 }
