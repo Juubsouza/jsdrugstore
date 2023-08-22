@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/customers")
-@Tag(name = "Customers", description = "API operations related to customers")
+@RequestMapping("/customer")
+@Tag(name = "Customer", description = "API operations related to customers")
 public class CustomerController {
     private final CustomerService customerService;
 
@@ -46,15 +46,15 @@ public class CustomerController {
 
     @PostMapping("/add")
     @Operation(summary = "Add a new customer", description = "Adds a new customer to the database")
-    public ResponseEntity<?> addCustomer(@Parameter(description = "Information about the customer") @RequestBody CustomerDTOAdd customerDTOADD) {
-        ValidationResponse validationResponse = validateFields(customerDTOADD.getFirstName(),
-                customerDTOADD.getLastName(), customerDTOADD.getEmail(), true, null);
+    public ResponseEntity<?> addCustomer(@Parameter @RequestBody CustomerDTOAdd customerDTOAdd) {
+        ValidationResponse validationResponse = validateFields(customerDTOAdd.getFirstName(),
+                customerDTOAdd.getLastName(), customerDTOAdd.getEmail(), true, null);
 
         if (validationResponse.getStatus() != HttpStatus.OK)
             return ResponseEntity.status(validationResponse.getStatus()).body(validationResponse.getMessage());
 
         try {
-            CustomerDTO addedCustomer = customerService.addCustomer(customerDTOADD);
+            CustomerDTO addedCustomer = customerService.addCustomer(customerDTOAdd);
             return ResponseEntity.status(HttpStatus.CREATED).body(addedCustomer);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -63,7 +63,7 @@ public class CustomerController {
 
     @PostMapping("/update")
     @Operation(summary = "Update a customer", description = "Updates a customer in the database")
-    public ResponseEntity<?> updateCustomer(@Parameter(description = "Information about the customer") @RequestBody CustomerDTO customerDTO) {
+    public ResponseEntity<?> updateCustomer(@Parameter @RequestBody CustomerDTO customerDTO) {
         ValidationResponse validationResponse = validateFields(customerDTO.getFirstName(),
                 customerDTO.getLastName(), customerDTO.getEmail(), false, customerDTO.getId());
 
@@ -90,12 +90,15 @@ public class CustomerController {
     }
 
     private ValidationResponse validateFields(String firstName, String lastName, String email, boolean isCreating, Long id) {
-        if (!isCreating) {
+        if (isCreating) {
+            if (customerService.emailAlreadyRegistered(email))
+                return new ValidationResponse("There already is a customer with this email in the database.", HttpStatus.BAD_REQUEST);
+        } else {
             if (id == null || id <= 0)
-                return new ValidationResponse("Customer ID must be greater than zero", HttpStatus.BAD_REQUEST);
+                return new ValidationResponse("Customer ID must be greater than zero.", HttpStatus.BAD_REQUEST);
 
             if (!customerService.customerExists(id))
-                return new ValidationResponse("Customer not found", HttpStatus.NOT_FOUND);
+                return new ValidationResponse("Customer not found.", HttpStatus.NOT_FOUND);
         }
 
         if (firstName == null || firstName.isEmpty())
@@ -109,11 +112,6 @@ public class CustomerController {
 
         if (!EmailValidator.isValid(email))
             return new ValidationResponse("Customer email is invalid.", HttpStatus.BAD_REQUEST);
-
-        if (isCreating) {
-            if (customerService.emailAlreadyRegistered(email))
-                return new ValidationResponse("There already is a customer with this email in the database.", HttpStatus.BAD_REQUEST);
-        }
 
         return new ValidationResponse("Valid", HttpStatus.OK);
     }
