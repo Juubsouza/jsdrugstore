@@ -1,6 +1,7 @@
 package com.juubsouza.jsdrugstore.model;
 
 import java.util.Date;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,7 +21,7 @@ public class Seller {
 
     private String lastName;
 
-    private String shift;
+    private String shift = "DAY";
 
     private Date admissionDate;
 }

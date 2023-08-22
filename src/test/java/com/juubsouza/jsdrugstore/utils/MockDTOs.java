@@ -72,7 +72,7 @@ public class MockDTOs {
         sellerDTO.setId(1L);
         sellerDTO.setFirstName("John");
         sellerDTO.setLastName("Doe");
-        sellerDTO.setShift("Morning");
+        sellerDTO.setShift("DAY");
         sellerDTO.setAdmissionDate(new Date());
         return sellerDTO;
     }
@@ -81,7 +81,7 @@ public class MockDTOs {
         SellerDTOAdd sellerDTOAdd = new SellerDTOAdd();
         sellerDTOAdd.setFirstName("John");
         sellerDTOAdd.setLastName("Doe");
-        sellerDTOAdd.setShift("Morning");
+        sellerDTOAdd.setShift("DAY");
         sellerDTOAdd.setAdmissionDate(new Date());
         return sellerDTOAdd;
     }
