@@ -28,4 +28,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "FROM Product p " +
             "WHERE p.name LIKE %?1%")
     List<ProductDTO> findDTOsByName(String name);
+
+    List<Product> findByIdIn(List<Long> productIds);
 }

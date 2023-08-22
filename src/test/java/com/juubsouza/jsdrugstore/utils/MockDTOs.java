@@ -67,6 +67,26 @@ public class MockDTOs {
         return product;
     }
 
+    public static SaleDTO newMockSaleDTO() {
+        SaleDTO saleDTO = new SaleDTO();
+        saleDTO.setId(1L);
+        saleDTO.setPaymentMethod("CASH");
+        saleDTO.setPaymentStatus("PENDING");
+        saleDTO.setShippingStatus("PENDING");
+        saleDTO.setTotal(BigDecimal.valueOf(10.0));
+        saleDTO.setCustomerId(1L);
+        saleDTO.setSellerId(1L);
+        return saleDTO;
+    }
+
+    public static SaleDTOAdd newMockSaleDTOAdd() {
+        SaleDTOAdd saleDTOAdd = new SaleDTOAdd();
+        saleDTOAdd.setPaymentMethod("CASH");
+        saleDTOAdd.setCustomerId(1L);
+        saleDTOAdd.setSellerId(1L);
+        return saleDTOAdd;
+    }
+
     public static SellerDTO newMockSellerDTO() {
         SellerDTO sellerDTO = new SellerDTO();
         sellerDTO.setId(1L);
