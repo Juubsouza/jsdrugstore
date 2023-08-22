@@ -34,13 +34,13 @@ public class CustomerController {
 
     @GetMapping("/by-id={id}")
     @Operation(summary = "Find customer by id", description = "Returns a customer matching the provided id, if it exists")
-    public CustomerDTO findProductById(@Parameter(description = "Customer ID") @PathVariable Long id) {
+    public CustomerDTO findCustomerById(@Parameter(description = "Customer ID") @PathVariable Long id) {
         return customerService.findCustomerById(id);
     }
 
     @GetMapping("/by-name={name}")
     @Operation(summary = "Find customer by first or last name", description = "Returns a list of customers matching the provided name, if any exist")
-    public List<CustomerDTO> findProductByFirstOrLastName(@Parameter(description = "Customer first or last name") @PathVariable String name) {
+    public List<CustomerDTO> findCustomerByFirstOrLastName(@Parameter(description = "Customer first or last name") @PathVariable String name) {
         return customerService.findCustomersByFirstOrLastName(name);
     }
 
