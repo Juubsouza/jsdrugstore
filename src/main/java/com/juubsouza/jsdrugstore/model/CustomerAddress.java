@@ -15,7 +15,7 @@ public class CustomerAddress {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Integer isShipping;
+    private Boolean isShipping;
 
     @ManyToOne
     @JoinColumn(name = "address_id")
