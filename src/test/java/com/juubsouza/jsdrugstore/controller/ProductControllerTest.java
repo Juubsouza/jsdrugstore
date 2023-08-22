@@ -18,11 +18,10 @@ import java.util.List;
 import org.hamcrest.Matchers;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -41,7 +40,7 @@ public class ProductControllerTest {
         List<ProductDTO> products = new ArrayList<>();
         when(productService.findAllProducts()).thenReturn(products);
 
-        mockMvc.perform(get("/products/all"))
+        mockMvc.perform(get("/product/all"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
     }
@@ -51,7 +50,7 @@ public class ProductControllerTest {
         ProductDTO product = this.newMockProductDTO();
         when(productService.findProductById(any(Long.class))).thenReturn(product);
 
-        mockMvc.perform(get("/products/by-id={id}", 1L))
+        mockMvc.perform(get("/product/by-id={id}", 1L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", Matchers.is(product.getId().intValue())));
     }
@@ -62,7 +61,7 @@ public class ProductControllerTest {
         products.add(this.newMockProductDTO());
         when(productService.findProductsByName(anyString())).thenReturn(products);
 
-        mockMvc.perform(get("/products/by-name={name}", "Test Product"))
+        mockMvc.perform(get("/product/by-name={name}", "Test Product"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].name", Matchers.is(products.get(0).getName())));
@@ -77,11 +76,70 @@ public class ProductControllerTest {
         when(productService.productExists(anyString())).thenReturn(false);
         when(productService.addProduct(productDTOAdd)).thenReturn(addedProduct);
 
-        mockMvc.perform(post("/products/add")
+        mockMvc.perform(post("/product/add")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(productDTOAdd)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", Matchers.is(addedProduct.getId().intValue())));
+    }
+
+    @Test
+    public void testUpdateProductOk() throws Exception {
+        ProductDTO productDTO = this.newMockProductDTO();
+
+        when(productService.productExists(anyString())).thenReturn(false);
+        when(productService.updateProduct(any(ProductDTO.class))).thenReturn(productDTO);
+
+        mockMvc.perform(post("/product/update")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(productDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", Matchers.is(productDTO.getId().intValue())));
+    }
+
+    @Test
+    public void testUpdateProductWithInvalidId() throws Exception {
+        ProductDTO productDTO = this.newMockProductDTO();
+        productDTO.setId(null);
+
+        when(productService.productExists(anyString())).thenReturn(false);
+        when(productService.updateProduct(any(ProductDTO.class))).thenReturn(productDTO);
+
+        validateAndExpectBadRequest("Product ID must be greater than zero.", productDTO);
+
+        productDTO.setId(0L);
+
+        validateAndExpectBadRequest("Product ID must be greater than zero.", productDTO);
+    }
+
+    @Test
+    public void testUpdateProductThrowsException() throws Exception {
+        ProductDTO productDTO = this.newMockProductDTO();
+
+        when(productService.productExists(anyString())).thenReturn(false);
+        when(productService.updateProduct(any(ProductDTO.class))).thenThrow(new RuntimeException());
+
+        mockMvc.perform(post("/product/update")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(productDTO)))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    public void testDeleteProductOk() throws Exception {
+        mockMvc.perform(delete("/product/delete={id}", 1L))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void testDeleteProductThrowsException() throws Exception {
+        doThrow(new RuntimeException("Some error message"))
+                .when(productService)
+                .deleteProduct(anyLong());
+
+        mockMvc.perform(delete("/product/delete=1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError());
     }
 
     @Test
@@ -91,19 +149,11 @@ public class ProductControllerTest {
 
         when(productService.productExists(anyString())).thenReturn(false);
 
-        mockMvc.perform(post("/products/add")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(productDTOAdd)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$", Matchers.is("Product name cannot be empty.")));
+        validateAndExpectBadRequest("Product name cannot be empty.", productDTOAdd);
 
         productDTOAdd.setName(null);
 
-        mockMvc.perform(post("/products/add")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(productDTOAdd)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$", Matchers.is("Product name cannot be empty.")));
+        validateAndExpectBadRequest("Product name cannot be empty.", productDTOAdd);
     }
 
     @Test
@@ -112,11 +162,7 @@ public class ProductControllerTest {
 
         when(productService.productExists(anyString())).thenReturn(true);
 
-        mockMvc.perform(post("/products/add")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(productDTOAdd)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$", Matchers.is("There already is a product with this name in the database.")));
+        validateAndExpectBadRequest("There already is a product with this name in the database.", productDTOAdd);
     }
 
     @Test
@@ -126,19 +172,11 @@ public class ProductControllerTest {
 
         when(productService.productExists(anyString())).thenReturn(false);
 
-        mockMvc.perform(post("/products/add")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(productDTOAdd)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$", Matchers.is("Product manufacturer cannot be empty.")));
+        validateAndExpectBadRequest("Product manufacturer cannot be empty.", productDTOAdd);
 
         productDTOAdd.setManufacturer(null);
 
-        mockMvc.perform(post("/products/add")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(productDTOAdd)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$", Matchers.is("Product manufacturer cannot be empty.")));
+        validateAndExpectBadRequest("Product manufacturer cannot be empty.", productDTOAdd);
     }
 
     @Test
@@ -148,19 +186,11 @@ public class ProductControllerTest {
 
         when(productService.productExists(anyString())).thenReturn(false);
 
-        mockMvc.perform(post("/products/add")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(productDTOAdd)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$", Matchers.is("Product price must be greater than 0.")));
+        validateAndExpectBadRequest("Product price must be greater than 0.", productDTOAdd);
 
         productDTOAdd.setPrice(BigDecimal.valueOf(-1.0));
 
-        mockMvc.perform(post("/products/add")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(productDTOAdd)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$", Matchers.is("Product price must be greater than 0.")));
+        validateAndExpectBadRequest("Product price must be greater than 0.", productDTOAdd);
     }
 
     @Test
@@ -170,19 +200,11 @@ public class ProductControllerTest {
 
         when(productService.productExists(anyString())).thenReturn(false);
 
-        mockMvc.perform(post("/products/add")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(productDTOAdd)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$", Matchers.is("Product stock must be greater than or equal to 0.")));
+        validateAndExpectBadRequest("Product stock must be greater than or equal to 0.", productDTOAdd);
 
         productDTOAdd.setStock(-1);
 
-        mockMvc.perform(post("/products/add")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(productDTOAdd)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$", Matchers.is("Product stock must be greater than or equal to 0.")));
+        validateAndExpectBadRequest("Product stock must be greater than or equal to 0.", productDTOAdd);
     }
 
     @Test
@@ -192,10 +214,26 @@ public class ProductControllerTest {
         when(productService.productExists(anyString())).thenReturn(false);
         when(productService.addProduct(any(ProductDTOAdd.class))).thenThrow(new RuntimeException());
 
-        mockMvc.perform(post("/products/add")
+        mockMvc.perform(post("/product/add")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(productDTOAdd)))
                 .andExpect(status().isInternalServerError());
+    }
+
+    private void validateAndExpectBadRequest(String message, ProductDTO productDTO) throws Exception {
+        mockMvc.perform(post("/product/update")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(productDTO)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$", Matchers.is(message)));
+    }
+
+    private void validateAndExpectBadRequest(String message, ProductDTOAdd productDTOadd) throws Exception {
+        mockMvc.perform(post("/product/add")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(productDTOadd)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$", Matchers.is(message)));
     }
 
     private ProductDTOAdd newMockProductDTOAdd() {

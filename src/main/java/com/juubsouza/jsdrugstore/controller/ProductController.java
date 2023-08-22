@@ -16,8 +16,8 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/products")
-@Tag(name = "Products", description = "API operations related to products")
+@RequestMapping("/product")
+@Tag(name = "Product", description = "API operations related to products")
 public class ProductController {
 
     private final ProductService productService;
@@ -47,8 +47,8 @@ public class ProductController {
 
     @PostMapping("/add")
     @Operation(summary = "Add a new product", description = "Adds a new product to the database")
-    public ResponseEntity<?> addProduct(@Parameter(description = "Information about the product") @RequestBody ProductDTOAdd productDTOAdd) {
-        ValidationResponse validationResponse = validadeFields(productDTOAdd.getName(), productDTOAdd.getManufacturer(),
+    public ResponseEntity<?> addProduct(@Parameter @RequestBody ProductDTOAdd productDTOAdd) {
+        ValidationResponse validationResponse = validateFields(productDTOAdd.getName(), productDTOAdd.getManufacturer(),
                 productDTOAdd.getPrice(), productDTOAdd.getStock(), true, null);
 
         if (validationResponse.getStatus() != HttpStatus.OK)
@@ -64,8 +64,8 @@ public class ProductController {
 
     @PostMapping("/update")
     @Operation(summary = "Update a product", description = "Updates a product in the database")
-    public ResponseEntity<?> updateProduct(@Parameter(description = "Information about the product") @RequestBody ProductDTO productDTO) {
-        ValidationResponse validationResponse = validadeFields(productDTO.getName(), productDTO.getManufacturer(),
+    public ResponseEntity<?> updateProduct(@Parameter @RequestBody ProductDTO productDTO) {
+        ValidationResponse validationResponse = validateFields(productDTO.getName(), productDTO.getManufacturer(),
                 productDTO.getPrice(), productDTO.getStock(), false, productDTO.getId());
 
         if (validationResponse.getStatus() != HttpStatus.OK)
@@ -90,10 +90,13 @@ public class ProductController {
         }
     }
 
-    private ValidationResponse validadeFields(String name, String manufacturer, BigDecimal price, Integer stock, boolean isCreating, Long id) {
+    private ValidationResponse validateFields(String name, String manufacturer, BigDecimal price, Integer stock, boolean isCreating, Long id) {
         if (!isCreating) {
             if (id == null || id <= 0)
-                return new ValidationResponse("Product ID must be greater than zero", HttpStatus.BAD_REQUEST);
+                return new ValidationResponse("Product ID must be greater than zero.", HttpStatus.BAD_REQUEST);
+        } else {
+            if (productService.productExists(name))
+                return new ValidationResponse("There already is a product with this name in the database.", HttpStatus.BAD_REQUEST);
         }
 
         if (name == null || name.isEmpty())
