@@ -25,7 +25,7 @@ public class MockDTOs {
         return product;
     }
 
-    public static CustomerDTO newMockCustomerDTO() throws Exception {
+    public static CustomerDTO newMockCustomerDTO() {
         CustomerDTO customerDTO = new CustomerDTO();
         customerDTO.setId(1L);
         customerDTO.setFirstName("John");

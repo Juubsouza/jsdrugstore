@@ -31,7 +31,7 @@ public class AddressService {
     }
 
     public void setAddressAsShippingTrue(Long id) {
-        Address address = addressRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Address not found"));
+        addressRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Address not found"));
         CustomerAddress customerAddress = customerAddressRepository.findByAddressId(id).orElseThrow(() -> new EntityNotFoundException("CustomerAddress not found"));
 
         setAllCustomerAddressToIsShippingFalse(customerAddress.getCustomer().getId());

@@ -144,11 +144,11 @@ public class AddressControllerTest {
         AddressDTOAdd addressDTOAdd = MockDTOs.newMockAddressDTOAdd();
         addressDTOAdd.setCustomerId(null);
 
-        validateAndExpectBadRequest(addressDTOAdd, "Customer ID must be greater than zero.");
+        validateAndExpectBadRequest("Customer ID must be greater than zero.", addressDTOAdd);
 
         addressDTOAdd.setCustomerId(0L);
 
-        validateAndExpectBadRequest(addressDTOAdd, "Customer ID must be greater than zero.");
+        validateAndExpectBadRequest("Customer ID must be greater than zero.", addressDTOAdd);
     }
 
     @Test
@@ -169,11 +169,11 @@ public class AddressControllerTest {
         AddressDTO addressDTO = MockDTOs.newMockAddressDTO();
         addressDTO.setId(null);
 
-        validateAndExpectBadRequest(addressDTO, "Address ID must be greater than zero.");
+        validateAndExpectBadRequest("Address ID must be greater than zero.", addressDTO);
 
         addressDTO.setId(0L);
 
-        validateAndExpectBadRequest(addressDTO, "Address ID must be greater than zero.");
+        validateAndExpectBadRequest("Address ID must be greater than zero.", addressDTO);
     }
 
     @Test
@@ -181,11 +181,11 @@ public class AddressControllerTest {
         AddressDTOAdd addressDTOAdd = MockDTOs.newMockAddressDTOAdd();
         addressDTOAdd.setDetails(null);
 
-        validateAndExpectBadRequest(addressDTOAdd, "Address details cannot be empty.");
+        validateAndExpectBadRequest("Address details cannot be empty.", addressDTOAdd);
 
         addressDTOAdd.setDetails("");
 
-        validateAndExpectBadRequest(addressDTOAdd, "Address details cannot be empty.");
+        validateAndExpectBadRequest("Address details cannot be empty.", addressDTOAdd);
     }
 
     @Test
@@ -193,11 +193,11 @@ public class AddressControllerTest {
         AddressDTOAdd addressDTOAdd = MockDTOs.newMockAddressDTOAdd();
         addressDTOAdd.setCity(null);
 
-        validateAndExpectBadRequest(addressDTOAdd, "City cannot be empty.");
+        validateAndExpectBadRequest("City cannot be empty.", addressDTOAdd);
 
         addressDTOAdd.setCity("");
 
-        validateAndExpectBadRequest(addressDTOAdd, "City cannot be empty.");
+        validateAndExpectBadRequest("City cannot be empty.", addressDTOAdd);
     }
 
     @Test
@@ -205,11 +205,11 @@ public class AddressControllerTest {
         AddressDTOAdd addressDTOAdd = MockDTOs.newMockAddressDTOAdd();
         addressDTOAdd.setState(null);
 
-        validateAndExpectBadRequest(addressDTOAdd, "State cannot be empty.");
+        validateAndExpectBadRequest("State cannot be empty.", addressDTOAdd);
 
         addressDTOAdd.setState("");
 
-        validateAndExpectBadRequest(addressDTOAdd, "State cannot be empty.");
+        validateAndExpectBadRequest("State cannot be empty.", addressDTOAdd);
     }
 
     @Test
@@ -217,14 +217,14 @@ public class AddressControllerTest {
         AddressDTOAdd addressDTOAdd = MockDTOs.newMockAddressDTOAdd();
         addressDTOAdd.setCountry(null);
 
-        validateAndExpectBadRequest(addressDTOAdd, "Country cannot be empty.");
+        validateAndExpectBadRequest("Country cannot be empty.", addressDTOAdd);
 
         addressDTOAdd.setCountry("");
 
-        validateAndExpectBadRequest(addressDTOAdd, "Country cannot be empty.");
+        validateAndExpectBadRequest("Country cannot be empty.", addressDTOAdd);
     }
 
-    private void validateAndExpectBadRequest(AddressDTOAdd addressDTOAdd, String expectedMessage) throws Exception {
+    private void validateAndExpectBadRequest(String expectedMessage, AddressDTOAdd addressDTOAdd) throws Exception {
         mockMvc.perform(post("/address/add")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(addressDTOAdd)))
@@ -232,7 +232,7 @@ public class AddressControllerTest {
                 .andExpect(jsonPath("$").value(expectedMessage));
     }
 
-    private void validateAndExpectBadRequest(AddressDTO addressDTO, String expectedMessage) throws Exception {
+    private void validateAndExpectBadRequest(String expectedMessage, AddressDTO addressDTO) throws Exception {
         mockMvc.perform(post("/address/update")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(addressDTO)))
