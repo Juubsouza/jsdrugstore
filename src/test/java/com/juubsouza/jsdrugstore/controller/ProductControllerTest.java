@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.juubsouza.jsdrugstore.model.dto.ProductDTO;
 import com.juubsouza.jsdrugstore.model.dto.ProductDTOAdd;
 import com.juubsouza.jsdrugstore.service.ProductService;
+import com.juubsouza.jsdrugstore.utils.MockDTOs;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -47,7 +48,7 @@ public class ProductControllerTest {
 
     @Test
     public void testFindProductById() throws Exception {
-        ProductDTO product = this.newMockProductDTO();
+        ProductDTO product = MockDTOs.newMockProductDTO();
         when(productService.findProductById(any(Long.class))).thenReturn(product);
 
         mockMvc.perform(get("/product/by-id={id}", 1L))
@@ -58,7 +59,7 @@ public class ProductControllerTest {
     @Test
     public void testFindProductByName() throws Exception {
         List<ProductDTO> products = new ArrayList<>();
-        products.add(this.newMockProductDTO());
+        products.add(MockDTOs.newMockProductDTO());
         when(productService.findProductsByName(anyString())).thenReturn(products);
 
         mockMvc.perform(get("/product/by-name={name}", "Test Product"))
@@ -69,9 +70,9 @@ public class ProductControllerTest {
 
     @Test
     public void testAddProduct() throws Exception {
-        ProductDTOAdd productDTOAdd = this.newMockProductDTOAdd();
+        ProductDTOAdd productDTOAdd = MockDTOs.newMockProductDTOAdd();
 
-        ProductDTO addedProduct = this.newMockProductDTO();
+        ProductDTO addedProduct = MockDTOs.newMockProductDTO();
 
         when(productService.productExists(anyString())).thenReturn(false);
         when(productService.addProduct(productDTOAdd)).thenReturn(addedProduct);
@@ -85,7 +86,7 @@ public class ProductControllerTest {
 
     @Test
     public void testUpdateProductOk() throws Exception {
-        ProductDTO productDTO = this.newMockProductDTO();
+        ProductDTO productDTO = MockDTOs.newMockProductDTO();
 
         when(productService.productExists(anyString())).thenReturn(false);
         when(productService.updateProduct(any(ProductDTO.class))).thenReturn(productDTO);
@@ -99,7 +100,7 @@ public class ProductControllerTest {
 
     @Test
     public void testUpdateProductWithInvalidId() throws Exception {
-        ProductDTO productDTO = this.newMockProductDTO();
+        ProductDTO productDTO = MockDTOs.newMockProductDTO();
         productDTO.setId(null);
 
         when(productService.productExists(anyString())).thenReturn(false);
@@ -114,7 +115,7 @@ public class ProductControllerTest {
 
     @Test
     public void testUpdateProductThrowsException() throws Exception {
-        ProductDTO productDTO = this.newMockProductDTO();
+        ProductDTO productDTO = MockDTOs.newMockProductDTO();
 
         when(productService.productExists(anyString())).thenReturn(false);
         when(productService.updateProduct(any(ProductDTO.class))).thenThrow(new RuntimeException());
@@ -144,7 +145,7 @@ public class ProductControllerTest {
 
     @Test
     public void testAddProductWithEmptyOrNullName() throws Exception {
-        ProductDTOAdd productDTOAdd = this.newMockProductDTOAdd();
+        ProductDTOAdd productDTOAdd = MockDTOs.newMockProductDTOAdd();
         productDTOAdd.setName("");
 
         when(productService.productExists(anyString())).thenReturn(false);
@@ -158,7 +159,7 @@ public class ProductControllerTest {
 
     @Test
     public void testAddProductWithExistingName() throws Exception {
-        ProductDTOAdd productDTOAdd = this.newMockProductDTOAdd();
+        ProductDTOAdd productDTOAdd = MockDTOs.newMockProductDTOAdd();
 
         when(productService.productExists(anyString())).thenReturn(true);
 
@@ -167,7 +168,7 @@ public class ProductControllerTest {
 
     @Test
     public void testAddProductWithEmptyOrNullManufacturer() throws Exception {
-        ProductDTOAdd productDTOAdd = this.newMockProductDTOAdd();
+        ProductDTOAdd productDTOAdd = MockDTOs.newMockProductDTOAdd();
         productDTOAdd.setManufacturer("");
 
         when(productService.productExists(anyString())).thenReturn(false);
@@ -181,7 +182,7 @@ public class ProductControllerTest {
 
     @Test
     public void testAddProductWithNullPriceOrPriceLessThanZero() throws Exception {
-        ProductDTOAdd productDTOAdd = this.newMockProductDTOAdd();
+        ProductDTOAdd productDTOAdd = MockDTOs.newMockProductDTOAdd();
         productDTOAdd.setPrice(null);
 
         when(productService.productExists(anyString())).thenReturn(false);
@@ -195,7 +196,7 @@ public class ProductControllerTest {
 
     @Test
     public void testAddProductWithNullStockOrStockLessThanZero() throws Exception {
-        ProductDTOAdd productDTOAdd = this.newMockProductDTOAdd();
+        ProductDTOAdd productDTOAdd = MockDTOs.newMockProductDTOAdd();
         productDTOAdd.setStock(null);
 
         when(productService.productExists(anyString())).thenReturn(false);
@@ -209,7 +210,7 @@ public class ProductControllerTest {
 
     @Test
     public void testAddProductWithException() throws Exception {
-        ProductDTOAdd productDTOAdd = this.newMockProductDTOAdd();
+        ProductDTOAdd productDTOAdd = MockDTOs.newMockProductDTOAdd();
 
         when(productService.productExists(anyString())).thenReturn(false);
         when(productService.addProduct(any(ProductDTOAdd.class))).thenThrow(new RuntimeException());
@@ -234,24 +235,5 @@ public class ProductControllerTest {
                         .content(new ObjectMapper().writeValueAsString(productDTOadd)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$", Matchers.is(message)));
-    }
-
-    private ProductDTOAdd newMockProductDTOAdd() {
-        ProductDTOAdd product = new ProductDTOAdd();
-        product.setName("Test Product");
-        product.setManufacturer("Test Manufacturer");
-        product.setPrice(BigDecimal.valueOf(10.0));
-        product.setStock(100);
-        return product;
-    }
-
-    private ProductDTO newMockProductDTO() {
-        ProductDTO product = new ProductDTO();
-        product.setId(1L);
-        product.setName("Test Product");
-        product.setManufacturer("Test Manufacturer");
-        product.setPrice(BigDecimal.valueOf(10.0));
-        product.setStock(100);
-        return product;
     }
 }

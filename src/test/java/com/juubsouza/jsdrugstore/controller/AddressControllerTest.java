@@ -5,6 +5,7 @@ import com.juubsouza.jsdrugstore.model.dto.AddressDTO;
 import com.juubsouza.jsdrugstore.model.dto.AddressDTOAdd;
 import com.juubsouza.jsdrugstore.service.AddressService;
 
+import com.juubsouza.jsdrugstore.utils.MockDTOs;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -61,9 +62,9 @@ public class AddressControllerTest {
 
     @Test
     public void testAddAddress() throws Exception {
-        AddressDTOAdd addressDTOAdd = this.newMockAddressDTOAdd();
+        AddressDTOAdd addressDTOAdd = MockDTOs.newMockAddressDTOAdd();
 
-        AddressDTO addedAddress = this.newMockAddressDTO();
+        AddressDTO addedAddress = MockDTOs.newMockAddressDTO();
 
         when(addressService.addAddress(any(AddressDTOAdd.class))).thenReturn(addedAddress);
 
@@ -75,7 +76,7 @@ public class AddressControllerTest {
 
     @Test
     public void testAddAddressWithException() throws Exception {
-        AddressDTOAdd addressDTOAdd = this.newMockAddressDTOAdd();
+        AddressDTOAdd addressDTOAdd = MockDTOs.newMockAddressDTOAdd();
 
         when(addressService.addAddress(any(AddressDTOAdd.class))).thenThrow(new RuntimeException("Some error message"));
 
@@ -87,7 +88,7 @@ public class AddressControllerTest {
 
     @Test
     public void testAddAddressWithInvalidFields() throws Exception {
-        AddressDTOAdd addressDTOAdd = this.newMockAddressDTOAdd();
+        AddressDTOAdd addressDTOAdd = MockDTOs.newMockAddressDTOAdd();
         addressDTOAdd.setDetails(null);
 
         mockMvc.perform(post("/address/add")
@@ -114,7 +115,7 @@ public class AddressControllerTest {
 
     @Test
     public void testUpdateAddress() throws Exception {
-        AddressDTO addressDTO = this.newMockAddressDTO();
+        AddressDTO addressDTO = MockDTOs.newMockAddressDTO();
 
         when(addressService.addressExists(anyLong())).thenReturn(true);
         when(addressService.updateAddress(any(AddressDTO.class))).thenReturn(addressDTO);
@@ -127,7 +128,7 @@ public class AddressControllerTest {
 
     @Test
     public void testUpdateAddressWithException() throws Exception {
-        AddressDTO addressDTO = this.newMockAddressDTO();
+        AddressDTO addressDTO = MockDTOs.newMockAddressDTO();
 
         when(addressService.addressExists(anyLong())).thenReturn(true);
         when(addressService.updateAddress(any(AddressDTO.class))).thenThrow(new RuntimeException("Some error message"));
@@ -140,7 +141,7 @@ public class AddressControllerTest {
 
     @Test
     public void testValidateCustomerId() throws Exception {
-        AddressDTOAdd addressDTOAdd = this.newMockAddressDTOAdd();
+        AddressDTOAdd addressDTOAdd = MockDTOs.newMockAddressDTOAdd();
         addressDTOAdd.setCustomerId(null);
 
         validateAndExpectBadRequest(addressDTOAdd, "Customer ID must be greater than zero.");
@@ -152,7 +153,7 @@ public class AddressControllerTest {
 
     @Test
     public void testValidateAddressDoesNotExist() throws Exception {
-        AddressDTO addressDTO = this.newMockAddressDTO();
+        AddressDTO addressDTO = MockDTOs.newMockAddressDTO();
 
         when(addressService.addressExists(anyLong())).thenReturn(false);
 
@@ -165,7 +166,7 @@ public class AddressControllerTest {
 
     @Test
     public void testValidateId() throws Exception {
-        AddressDTO addressDTO = this.newMockAddressDTO();
+        AddressDTO addressDTO = MockDTOs.newMockAddressDTO();
         addressDTO.setId(null);
 
         validateAndExpectBadRequest(addressDTO, "Address ID must be greater than zero.");
@@ -177,7 +178,7 @@ public class AddressControllerTest {
 
     @Test
     public void testValidateDetails() throws Exception {
-        AddressDTOAdd addressDTOAdd = this.newMockAddressDTOAdd();
+        AddressDTOAdd addressDTOAdd = MockDTOs.newMockAddressDTOAdd();
         addressDTOAdd.setDetails(null);
 
         validateAndExpectBadRequest(addressDTOAdd, "Address details cannot be empty.");
@@ -189,7 +190,7 @@ public class AddressControllerTest {
 
     @Test
     public void testValidateCity() throws Exception {
-        AddressDTOAdd addressDTOAdd = this.newMockAddressDTOAdd();
+        AddressDTOAdd addressDTOAdd = MockDTOs.newMockAddressDTOAdd();
         addressDTOAdd.setCity(null);
 
         validateAndExpectBadRequest(addressDTOAdd, "City cannot be empty.");
@@ -201,7 +202,7 @@ public class AddressControllerTest {
 
     @Test
     public void testValidateState() throws Exception {
-        AddressDTOAdd addressDTOAdd = this.newMockAddressDTOAdd();
+        AddressDTOAdd addressDTOAdd = MockDTOs.newMockAddressDTOAdd();
         addressDTOAdd.setState(null);
 
         validateAndExpectBadRequest(addressDTOAdd, "State cannot be empty.");
@@ -213,7 +214,7 @@ public class AddressControllerTest {
 
     @Test
     public void testValidateCountry() throws Exception {
-        AddressDTOAdd addressDTOAdd = this.newMockAddressDTOAdd();
+        AddressDTOAdd addressDTOAdd = MockDTOs.newMockAddressDTOAdd();
         addressDTOAdd.setCountry(null);
 
         validateAndExpectBadRequest(addressDTOAdd, "Country cannot be empty.");
@@ -221,30 +222,6 @@ public class AddressControllerTest {
         addressDTOAdd.setCountry("");
 
         validateAndExpectBadRequest(addressDTOAdd, "Country cannot be empty.");
-    }
-
-    private AddressDTO newMockAddressDTO() {
-        AddressDTO addressDTO = new AddressDTO();
-        addressDTO.setId(1L);
-        addressDTO.setDetails("Test Address");
-        addressDTO.setCity("Test City");
-        addressDTO.setState("Test State");
-        addressDTO.setCountry("Test Country");
-        addressDTO.setShipping(true);
-
-        return addressDTO;
-    }
-
-    private AddressDTOAdd newMockAddressDTOAdd() {
-        AddressDTOAdd addressDTOAdd = new AddressDTOAdd();
-        addressDTOAdd.setDetails("Test Address");
-        addressDTOAdd.setCity("Test City");
-        addressDTOAdd.setState("Test State");
-        addressDTOAdd.setCountry("Test Country");
-        addressDTOAdd.setShipping(true);
-        addressDTOAdd.setCustomerId(1L);
-
-        return addressDTOAdd;
     }
 
     private void validateAndExpectBadRequest(AddressDTOAdd addressDTOAdd, String expectedMessage) throws Exception {

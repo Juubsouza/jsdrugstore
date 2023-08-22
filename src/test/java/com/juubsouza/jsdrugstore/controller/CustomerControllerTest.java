@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.juubsouza.jsdrugstore.model.dto.CustomerDTO;
 import com.juubsouza.jsdrugstore.model.dto.CustomerDTOAdd;
 import com.juubsouza.jsdrugstore.service.CustomerService;
+import com.juubsouza.jsdrugstore.utils.MockDTOs;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +45,7 @@ public class CustomerControllerTest {
 
     @Test
     public void testFindCustomerById() throws Exception {
-        CustomerDTO customer = newMockCustomerDTO();
+        CustomerDTO customer = MockDTOs.newMockCustomerDTO();
         when(customerservice.findCustomerById(any(Long.class))).thenReturn(customer);
 
         mockMvc.perform(get("/customer/by-id={id}", 1L))
@@ -55,7 +56,7 @@ public class CustomerControllerTest {
     @Test
     public void testFindCustomerByFirstOrLastName() throws Exception {
         List<CustomerDTO> customers = new ArrayList<>();
-        customers.add(newMockCustomerDTO());
+        customers.add(MockDTOs.newMockCustomerDTO());
         when(customerservice.findCustomersByFirstOrLastName(any(String.class))).thenReturn(customers);
 
         mockMvc.perform(get("/customer/by-name={name}", "John"))
@@ -65,8 +66,8 @@ public class CustomerControllerTest {
 
     @Test
     public void testAddCustomerOk() throws Exception {
-        CustomerDTOAdd customerDTOAdd = newMockCustomerDTOAdd();
-        CustomerDTO customerDTO = newMockCustomerDTO();
+        CustomerDTOAdd customerDTOAdd = MockDTOs.newMockCustomerDTOAdd();
+        CustomerDTO customerDTO = MockDTOs.newMockCustomerDTO();
         when(customerservice.addCustomer(any(CustomerDTOAdd.class))).thenReturn(customerDTO);
 
         mockMvc.perform(post("/customer/add")
@@ -78,7 +79,7 @@ public class CustomerControllerTest {
 
     @Test
     public void testAddCustomerEmailAlreadyRegistered() throws Exception {
-        CustomerDTOAdd customerDTOAdd = newMockCustomerDTOAdd();
+        CustomerDTOAdd customerDTOAdd = MockDTOs.newMockCustomerDTOAdd();
         when(customerservice.emailAlreadyRegistered(any(String.class))).thenReturn(true);
 
         validateAndExpectBadRequest("There already is a customer with this email in the database.", customerDTOAdd);
@@ -86,7 +87,7 @@ public class CustomerControllerTest {
 
     @Test
     public void testAddCustomerFirstNameNullOrEmpty() throws Exception {
-        CustomerDTOAdd customerDTOAdd = newMockCustomerDTOAdd();
+        CustomerDTOAdd customerDTOAdd = MockDTOs.newMockCustomerDTOAdd();
         customerDTOAdd.setFirstName(null);
 
         validateAndExpectBadRequest("Customer first name cannot be empty.", customerDTOAdd);
@@ -98,7 +99,7 @@ public class CustomerControllerTest {
 
     @Test
     public void testAddCustomerLastNullOrEmpty() throws Exception {
-        CustomerDTOAdd customerDTOAdd = newMockCustomerDTOAdd();
+        CustomerDTOAdd customerDTOAdd = MockDTOs.newMockCustomerDTOAdd();
         customerDTOAdd.setLastName(null);
 
         validateAndExpectBadRequest("Customer last name cannot be empty.", customerDTOAdd);
@@ -110,7 +111,7 @@ public class CustomerControllerTest {
 
     @Test
     public void testAddCustomerEmailNullOrEmpty() throws Exception {
-        CustomerDTOAdd customerDTOAdd = newMockCustomerDTOAdd();
+        CustomerDTOAdd customerDTOAdd = MockDTOs.newMockCustomerDTOAdd();
         customerDTOAdd.setEmail(null);
 
         validateAndExpectBadRequest("Customer email cannot be empty.", customerDTOAdd);
@@ -122,7 +123,7 @@ public class CustomerControllerTest {
 
     @Test
     public void testAddCustomerEmailInvalid() throws Exception {
-        CustomerDTOAdd customerDTOAdd = newMockCustomerDTOAdd();
+        CustomerDTOAdd customerDTOAdd = MockDTOs.newMockCustomerDTOAdd();
         customerDTOAdd.setEmail("invalidemail");
 
         validateAndExpectBadRequest("Customer email is invalid.", customerDTOAdd);
@@ -130,7 +131,7 @@ public class CustomerControllerTest {
 
     @Test
     public void testUpdateAddWithException() throws Exception {
-        CustomerDTOAdd customerDTOAdd = newMockCustomerDTOAdd();
+        CustomerDTOAdd customerDTOAdd = MockDTOs.newMockCustomerDTOAdd();
         when(customerservice.customerExists(any(Long.class))).thenReturn(false);
         when(customerservice.addCustomer(any(CustomerDTOAdd.class))).thenThrow(new RuntimeException());
 
@@ -156,7 +157,7 @@ public class CustomerControllerTest {
 
     @Test
     public void testUpdateCustomerOk() throws Exception {
-        CustomerDTO customerDTO = newMockCustomerDTO();
+        CustomerDTO customerDTO = MockDTOs.newMockCustomerDTO();
         when(customerservice.customerExists(any(Long.class))).thenReturn(true);
         when(customerservice.updateCustomer(any(CustomerDTO.class))).thenReturn(customerDTO);
 
@@ -169,7 +170,7 @@ public class CustomerControllerTest {
 
     @Test
     public void testUpdateCustomerWithException() throws Exception {
-        CustomerDTO customerDTO = newMockCustomerDTO();
+        CustomerDTO customerDTO = MockDTOs.newMockCustomerDTO();
         when(customerservice.customerExists(any(Long.class))).thenReturn(true);
         when(customerservice.updateCustomer(any(CustomerDTO.class))).thenThrow(new RuntimeException());
 
@@ -180,20 +181,8 @@ public class CustomerControllerTest {
     }
 
     @Test
-    public void testUpdateCustomerDoesNotExist() throws Exception {
-        CustomerDTO customerDTO = newMockCustomerDTO();
-        when(customerservice.customerExists(any(Long.class))).thenReturn(false);
-
-        mockMvc.perform(post("/customer/update")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(customerDTO)))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$", Matchers.is("Customer not found.")));
-    }
-
-    @Test
     public void testUpdateCustomerIdNullOrZero() throws Exception {
-        CustomerDTO customerDTO = newMockCustomerDTO();
+        CustomerDTO customerDTO = MockDTOs.newMockCustomerDTO();
         customerDTO.setId(null);
 
         validateAndExpectBadRequest("Customer ID must be greater than zero.", customerDTO);
@@ -204,8 +193,8 @@ public class CustomerControllerTest {
     }
 
     @Test
-    public void testUpdateCustomerDoesntNotExist() throws Exception {
-        CustomerDTO customerDTO = newMockCustomerDTO();
+    public void testUpdateCustomerDoesNotExist() throws Exception {
+        CustomerDTO customerDTO = MockDTOs.newMockCustomerDTO();
         when(customerservice.customerExists(any(Long.class))).thenReturn(false);
 
         mockMvc.perform(post("/customer/update")
@@ -229,22 +218,5 @@ public class CustomerControllerTest {
                         .content(new ObjectMapper().writeValueAsString(customerDTOAdd)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$", Matchers.is(message)));
-    }
-
-    private CustomerDTO newMockCustomerDTO() throws Exception {
-        CustomerDTO customerDTO = new CustomerDTO();
-        customerDTO.setId(1L);
-        customerDTO.setFirstName("John");
-        customerDTO.setLastName("Doe");
-        customerDTO.setEmail("johndoe@email.com");
-        return customerDTO;
-    }
-
-    private CustomerDTOAdd newMockCustomerDTOAdd() {
-        CustomerDTOAdd customerDTOAdd = new CustomerDTOAdd();
-        customerDTOAdd.setFirstName("John");
-        customerDTOAdd.setLastName("Doe");
-        customerDTOAdd.setEmail("johndoe@email.com");
-        return customerDTOAdd;
     }
 }
