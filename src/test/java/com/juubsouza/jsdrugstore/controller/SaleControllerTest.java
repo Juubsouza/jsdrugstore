@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -132,6 +133,18 @@ public class SaleControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(saleDTOAdd)))
                 .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    public void testFindAllSalesForCustomer() throws Exception {
+        List<SaleDTO> saleDTOList = MockDTOs.newMockSaleDTOs();
+
+        when(saleService.findAllSalesForCustomer(1L)).thenReturn(saleDTOList);
+
+        mockMvc.perform(get("/sale/all-for-customer=1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(saleDTOList.get(0).getId().intValue()))
+                .andExpect(jsonPath("$[1].id").value(saleDTOList.get(1).getId().intValue()));
     }
 
     private void validateAndExpectBadRequest(String message, SaleDTOAdd saleDTOAdd) throws Exception {

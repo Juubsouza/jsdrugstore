@@ -82,6 +82,18 @@ public class MockDTOs {
         return saleDTO;
     }
 
+    public static SaleDTO newMockSaleDTO(Long id) {
+        SaleDTO saleDTO = new SaleDTO();
+        saleDTO.setId(id);
+        saleDTO.setPaymentMethod("CASH");
+        saleDTO.setPaymentStatus("PENDING");
+        saleDTO.setShippingStatus("PENDING");
+        saleDTO.setTotal(BigDecimal.valueOf(10.0));
+        saleDTO.setCustomerId(1L);
+        saleDTO.setSellerId(1L);
+        return saleDTO;
+    }
+
     public static SaleDTOAdd newMockSaleDTOAdd() {
         SaleDTOAdd saleDTOAdd = new SaleDTOAdd();
         saleDTOAdd.setPaymentMethod("CASH");
@@ -200,5 +212,41 @@ public class MockDTOs {
         stock.setStock(100);
 
         return stock;
+    }
+
+    public static List<SaleDTO> newMockSaleDTOs() {
+        List<SaleDTO> saleDTOList = new ArrayList<>();
+
+        saleDTOList.add(newMockSaleDTO());
+        saleDTOList.add(newMockSaleDTO(2L));
+
+        return saleDTOList;
+    }
+
+    public static List<SaleProductDTO> newMockSaleProductDTOs() {
+        List<SaleProductDTO> saleProductDTOList = new ArrayList<>();
+
+        saleProductDTOList.add(newMockSaleProductDTO());
+        saleProductDTOList.add(newMockSaleProductDTO(2L));
+
+        return saleProductDTOList;
+    }
+
+    private static SaleProductDTO newMockSaleProductDTO() {
+        SaleProductDTO saleProductDTO = new SaleProductDTO();
+        saleProductDTO.setQuantity(1);
+        saleProductDTO.setProductId(1L);
+        saleProductDTO.setProductName("Test Product");
+
+        return saleProductDTO;
+    }
+
+    private static SaleProductDTO newMockSaleProductDTO(Long id) {
+        SaleProductDTO saleProductDTO = new SaleProductDTO();
+        saleProductDTO.setQuantity(1);
+        saleProductDTO.setProductId(id);
+        saleProductDTO.setProductName("Test Product");
+
+        return saleProductDTO;
     }
 }

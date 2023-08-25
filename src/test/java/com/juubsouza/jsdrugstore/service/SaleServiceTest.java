@@ -1,6 +1,7 @@
 package com.juubsouza.jsdrugstore.service;
 
 import com.juubsouza.jsdrugstore.model.Product;
+import com.juubsouza.jsdrugstore.model.dto.SaleDTO;
 import com.juubsouza.jsdrugstore.model.dto.SaleDTOAdd;
 import com.juubsouza.jsdrugstore.repository.*;
 import com.juubsouza.jsdrugstore.utils.MockDTOs;
@@ -132,8 +133,13 @@ public class SaleServiceTest {
 
     @Test
     public void testFindAllSalesForCustomerOk() {
+        List<SaleDTO> saleDTOs = MockDTOs.newMockSaleDTOs();
+        when(saleRepository.findAllDTOsByCustomerId(MOCK_ID)).thenReturn(saleDTOs);
+        when(saleProductRepository.findAllDTOsBySaleId(any())).thenReturn(MockDTOs.newMockSaleProductDTOs());
+
         saleService.findAllSalesForCustomer(MOCK_ID);
 
-        verify(saleRepository, times(1)).findAllDTOsByCustomerId(MOCK_ID);
+        verify(saleRepository, times(1)).findAllDTOsByCustomerId(any());
+        verify(saleProductRepository, times(saleDTOs.size())).findAllDTOsBySaleId(any());
     }
 }
