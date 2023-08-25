@@ -3,9 +3,14 @@ package com.juubsouza.jsdrugstore.controller;
 import com.juubsouza.jsdrugstore.model.dto.SellerDTO;
 import com.juubsouza.jsdrugstore.model.dto.SellerDTOAdd;
 import com.juubsouza.jsdrugstore.service.SellerService;
+import com.juubsouza.jsdrugstore.utils.ErrorResponse;
 import com.juubsouza.jsdrugstore.utils.ValidationResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,12 +34,19 @@ public class SellerController {
 
     @PostMapping("/add")
     @Operation(summary = "Add a new seller", description = "Adds a new seller to the database")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Seller added successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = SellerDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public ResponseEntity<?> addSeller(@Parameter @RequestBody SellerDTOAdd sellerDTOAdd) {
         ValidationResponse validationResponse = validateFields(sellerDTOAdd.getFirstName(), sellerDTOAdd.getLastName(),
                 sellerDTOAdd.getShift(), sellerDTOAdd.getAdmissionDate(), true, null);
 
         if (validationResponse.getStatus() != HttpStatus.OK)
-            return ResponseEntity.status(validationResponse.getStatus()).body(validationResponse.getMessage());
+            return ResponseEntity.status(validationResponse.getStatus()).body(new ErrorResponse(validationResponse.getStatus(), validationResponse.getMessage()));
 
         try {
             SellerDTO addedSeller = sellerService.addSeller(sellerDTOAdd);
@@ -64,12 +76,19 @@ public class SellerController {
 
     @PostMapping("/update")
     @Operation(summary = "Update a seller", description = "Updates a seller in the database")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Seller updated successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = SellerDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public ResponseEntity<?> updateSeller(@Parameter @RequestBody SellerDTO sellerDTO) {
         ValidationResponse validationResponse = validateFields(sellerDTO.getFirstName(),
                 sellerDTO.getLastName(), sellerDTO.getShift(), sellerDTO.getAdmissionDate(), false, sellerDTO.getId());
 
         if (validationResponse.getStatus() != HttpStatus.OK)
-            return ResponseEntity.status(validationResponse.getStatus()).body(validationResponse.getMessage());
+            return ResponseEntity.status(validationResponse.getStatus()).body(new ErrorResponse(validationResponse.getStatus(), validationResponse.getMessage()));
 
         try {
             SellerDTO updatedSeller = sellerService.updateSeller(sellerDTO);
@@ -81,6 +100,10 @@ public class SellerController {
 
     @DeleteMapping("/delete={id}")
     @Operation(summary = "Delete a seller", description = "Deletes a seller from the database")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Seller deleted successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public ResponseEntity<?> deleteSeller(@Parameter(description = "Seller ID") @PathVariable Long id) {
         try {
             sellerService.deleteSeller(id);

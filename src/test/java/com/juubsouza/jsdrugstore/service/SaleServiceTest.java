@@ -90,8 +90,9 @@ public class SaleServiceTest {
         SaleDTOAdd saleDTOAdd = MockDTOs.newMockSaleDTOAdd();
 
         when(customerRepository.findById(MOCK_ID)).thenReturn(Optional.of(MockDTOs.newMockCustomer()));
-        when(sellerRepository.findById(MOCK_ID)).thenReturn(Optional.empty());
+        when(sellerRepository.findById(MOCK_ID)).thenReturn(Optional.of(MockDTOs.newMockSeller()));
         when(productRepository.findById(MOCK_ID)).thenReturn(Optional.empty());
+        when(productRepository.findByIdIn(any())).thenReturn(MockDTOs.newMockProducts());
 
         assertThrows(EntityNotFoundException.class, () -> saleService.addSale(saleDTOAdd));
     }
@@ -127,5 +128,12 @@ public class SaleServiceTest {
         when(productRepository.findByIdIn(any())).thenReturn(emptyProducts);
 
         assertThrows(EntityNotFoundException.class, () -> saleService.addSale(saleDTOAdd));
+    }
+
+    @Test
+    public void testFindAllSalesForCustomerOk() {
+        saleService.findAllSalesForCustomer(MOCK_ID);
+
+        verify(saleRepository, times(1)).findAllDTOsByCustomerId(MOCK_ID);
     }
 }

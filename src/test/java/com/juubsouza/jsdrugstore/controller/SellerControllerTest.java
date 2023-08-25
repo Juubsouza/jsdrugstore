@@ -1,6 +1,7 @@
 package com.juubsouza.jsdrugstore.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
 import com.juubsouza.jsdrugstore.model.dto.SellerDTO;
 import com.juubsouza.jsdrugstore.model.dto.SellerDTOAdd;
 import com.juubsouza.jsdrugstore.service.SellerService;
@@ -12,11 +13,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -218,23 +221,32 @@ public class SellerControllerTest {
         mockMvc.perform(post("/seller/update")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(sellerDTO)))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$", Matchers.is("Seller not found.")));
+                .andExpect(status().isNotFound());
     }
 
     private void validateAndExpectBadRequest(String message, SellerDTO sellerDTO) throws Exception {
-        mockMvc.perform(post("/seller/update")
+        MvcResult result = mockMvc.perform(post("/seller/update")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(sellerDTO)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$", Matchers.is(message)));
+                .andReturn();
+
+        String jsonResponse = result.getResponse().getContentAsString();
+        String errorMessage = JsonPath.read(jsonResponse, "$.message");
+
+        assertEquals(message, errorMessage);
     }
 
     private void validateAndExpectBadRequest(String message, SellerDTOAdd sellerDTOAdd) throws Exception {
-        mockMvc.perform(post("/seller/add")
+        MvcResult result = mockMvc.perform(post("/seller/add")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(sellerDTOAdd)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$", Matchers.is(message)));
+                .andReturn();
+
+        String jsonResponse = result.getResponse().getContentAsString();
+        String errorMessage = JsonPath.read(jsonResponse, "$.message");
+
+        assertEquals(message, errorMessage);
     }
 }

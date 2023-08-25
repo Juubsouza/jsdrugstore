@@ -1,6 +1,7 @@
 package com.juubsouza.jsdrugstore.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
 import com.juubsouza.jsdrugstore.model.dto.ProductDTO;
 import com.juubsouza.jsdrugstore.model.dto.ProductDTOAdd;
 import com.juubsouza.jsdrugstore.service.ProductService;
@@ -17,8 +18,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.hamcrest.Matchers;
+import org.springframework.test.web.servlet.MvcResult;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -222,18 +225,28 @@ public class ProductControllerTest {
     }
 
     private void validateAndExpectBadRequest(String message, ProductDTO productDTO) throws Exception {
-        mockMvc.perform(post("/product/update")
+        MvcResult result = mockMvc.perform(post("/product/update")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(productDTO)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$", Matchers.is(message)));
+                .andReturn();
+
+        String jsonResponse = result.getResponse().getContentAsString();
+        String errorMessage = JsonPath.read(jsonResponse, "$.message");
+
+        assertEquals(message, errorMessage);
     }
 
     private void validateAndExpectBadRequest(String message, ProductDTOAdd productDTOadd) throws Exception {
-        mockMvc.perform(post("/product/add")
+        MvcResult result = mockMvc.perform(post("/product/add")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(productDTOadd)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$", Matchers.is(message)));
+                .andReturn();
+
+        String jsonResponse = result.getResponse().getContentAsString();
+        String errorMessage = JsonPath.read(jsonResponse, "$.message");
+
+        assertEquals(message, errorMessage);
     }
 }

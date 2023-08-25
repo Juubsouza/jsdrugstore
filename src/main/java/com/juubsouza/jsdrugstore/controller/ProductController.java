@@ -3,9 +3,14 @@ package com.juubsouza.jsdrugstore.controller;
 import com.juubsouza.jsdrugstore.model.dto.ProductDTO;
 import com.juubsouza.jsdrugstore.model.dto.ProductDTOAdd;
 import com.juubsouza.jsdrugstore.service.ProductService;
+import com.juubsouza.jsdrugstore.utils.ErrorResponse;
 import com.juubsouza.jsdrugstore.utils.ValidationResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -47,12 +52,19 @@ public class ProductController {
 
     @PostMapping("/add")
     @Operation(summary = "Add a new product", description = "Adds a new product to the database")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Product added successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public ResponseEntity<?> addProduct(@Parameter @RequestBody ProductDTOAdd productDTOAdd) {
         ValidationResponse validationResponse = validateFields(productDTOAdd.getName(), productDTOAdd.getManufacturer(),
                 productDTOAdd.getPrice(), productDTOAdd.getStock(), true, null);
 
         if (validationResponse.getStatus() != HttpStatus.OK)
-            return ResponseEntity.status(validationResponse.getStatus()).body(validationResponse.getMessage());
+            return ResponseEntity.status(validationResponse.getStatus()).body(new ErrorResponse(validationResponse.getStatus(), validationResponse.getMessage()));
 
         try {
             ProductDTO addedProduct = productService.addProduct(productDTOAdd);
@@ -64,12 +76,19 @@ public class ProductController {
 
     @PostMapping("/update")
     @Operation(summary = "Update a product", description = "Updates a product in the database")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Product updated successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public ResponseEntity<?> updateProduct(@Parameter @RequestBody ProductDTO productDTO) {
         ValidationResponse validationResponse = validateFields(productDTO.getName(), productDTO.getManufacturer(),
                 productDTO.getPrice(), productDTO.getStock(), false, productDTO.getId());
 
         if (validationResponse.getStatus() != HttpStatus.OK)
-            return ResponseEntity.status(validationResponse.getStatus()).body(validationResponse.getMessage());
+            return ResponseEntity.status(validationResponse.getStatus()).body(new ErrorResponse(validationResponse.getStatus(), validationResponse.getMessage()));
 
         try {
             ProductDTO updatedProduct = productService.updateProduct(productDTO);
@@ -81,6 +100,10 @@ public class ProductController {
 
     @DeleteMapping("/delete={id}")
     @Operation(summary = "Delete product by id", description = "Deletes a product matching the provided id, if it exists")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Product deleted successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public ResponseEntity<?> deleteProduct(@Parameter(description = "Product ID") @PathVariable Long id) {
         try {
             productService.deleteProduct(id);

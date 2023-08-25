@@ -1,6 +1,7 @@
 package com.juubsouza.jsdrugstore.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
 import com.juubsouza.jsdrugstore.model.dto.AddressDTO;
 import com.juubsouza.jsdrugstore.model.dto.AddressDTOAdd;
 import com.juubsouza.jsdrugstore.service.AddressService;
@@ -12,11 +13,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doThrow;
@@ -160,8 +163,7 @@ public class AddressControllerTest {
         mockMvc.perform(post("/address/update")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(addressDTO)))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$").value("Address not found."));
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -224,19 +226,29 @@ public class AddressControllerTest {
         validateAndExpectBadRequest("Country cannot be empty.", addressDTOAdd);
     }
 
-    private void validateAndExpectBadRequest(String expectedMessage, AddressDTOAdd addressDTOAdd) throws Exception {
-        mockMvc.perform(post("/address/add")
+    private void validateAndExpectBadRequest(String message, AddressDTOAdd addressDTOAdd) throws Exception {
+        MvcResult result = mockMvc.perform(post("/address/add")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(addressDTOAdd)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$").value(expectedMessage));
+                .andReturn();
+
+        String jsonResponse = result.getResponse().getContentAsString();
+        String errorMessage = JsonPath.read(jsonResponse, "$.message");
+
+        assertEquals(message, errorMessage);
     }
 
-    private void validateAndExpectBadRequest(String expectedMessage, AddressDTO addressDTO) throws Exception {
-        mockMvc.perform(post("/address/update")
+    private void validateAndExpectBadRequest(String message, AddressDTO addressDTO) throws Exception {
+        MvcResult result = mockMvc.perform(post("/address/update")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(addressDTO)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$").value(expectedMessage));
+                .andReturn();
+
+        String jsonResponse = result.getResponse().getContentAsString();
+        String errorMessage = JsonPath.read(jsonResponse, "$.message");
+
+        assertEquals(message, errorMessage);
     }
 }

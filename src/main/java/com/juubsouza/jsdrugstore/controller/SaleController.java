@@ -58,6 +58,12 @@ public class SaleController {
         }
     }
 
+    @GetMapping("/all-for-customer={customerId}")
+    @Operation(summary = "Get all sales for a customer", description = "Gets all sales for a customer from the database")
+    public List<SaleDTO> getAllSalesForCustomer(@Parameter(description = "Customer ID") @PathVariable Long customerId) {
+        return saleService.findAllSalesForCustomer(customerId);
+    }
+
     private ValidationResponse validateFields(String paymentMethod, List<SaleProductDTOAdd> saleProducts, Long customerId, Long sellerId) {
         if (saleProducts == null || saleProducts.isEmpty())
             return new ValidationResponse("Sale must have at least one product.", HttpStatus.BAD_REQUEST);

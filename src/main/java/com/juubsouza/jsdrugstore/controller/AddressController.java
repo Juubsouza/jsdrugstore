@@ -2,10 +2,16 @@ package com.juubsouza.jsdrugstore.controller;
 
 import com.juubsouza.jsdrugstore.model.dto.AddressDTO;
 import com.juubsouza.jsdrugstore.model.dto.AddressDTOAdd;
+import com.juubsouza.jsdrugstore.model.dto.ProductDTO;
 import com.juubsouza.jsdrugstore.service.AddressService;
+import com.juubsouza.jsdrugstore.utils.ErrorResponse;
 import com.juubsouza.jsdrugstore.utils.ValidationResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,12 +33,16 @@ public class AddressController {
 
     @GetMapping("/all-for-customer={customerId}")
     @Operation(summary = "Find all addresses for a customer", description = "Returns a list of addresses for a customer")
-    public List<AddressDTO> findAllAddressesByCustomerId(Long customerId) {
+    public List<AddressDTO> findAllAddressesByCustomerId(@Parameter(description = "Customer ID") @PathVariable Long customerId) {
         return addressService.findAllAddressesByCustomerId(customerId);
     }
 
     @PostMapping("/activate-address-as-shipping={id}")
     @Operation(summary = "Activates an address to be the shipping address", description = "All other addresses for this customer will be deactivated")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Address activated successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public ResponseEntity<?> activateAddressAsShipping(@Parameter(description = "Address ID") @PathVariable Long id) {
         try {
             addressService.setAddressAsShippingTrue(id);
@@ -44,13 +54,20 @@ public class AddressController {
 
     @PostMapping("/add")
     @Operation(summary = "Add a new address for a customer", description = "Adds a new address to a customer")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Address added successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AddressDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public ResponseEntity<?> add(@Parameter @RequestBody AddressDTOAdd addressDTOADD) {
         ValidationResponse validationResponse = validateFields(addressDTOADD.getDetails(),
                 addressDTOADD.getCity(), addressDTOADD.getState(), addressDTOADD.getCountry(), addressDTOADD.getCustomerId(),
                 true, null);
 
         if (validationResponse.getStatus() != HttpStatus.OK)
-            return ResponseEntity.status(validationResponse.getStatus()).body(validationResponse.getMessage());
+            return ResponseEntity.status(validationResponse.getStatus()).body(new ErrorResponse(validationResponse.getStatus(), validationResponse.getMessage()));
 
         try {
             AddressDTO addedAddress = addressService.addAddress(addressDTOADD);
@@ -62,13 +79,20 @@ public class AddressController {
 
     @PostMapping("/update")
     @Operation(summary = "Update an address", description = "Updates an address in the database")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Address updated successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AddressDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public ResponseEntity<?> updateAddress(@Parameter @RequestBody AddressDTO addressDTO) {
         ValidationResponse validationResponse = validateFields(addressDTO.getDetails(),
                 addressDTO.getCity(), addressDTO.getState(), addressDTO.getCountry(), 0L,
                 false, addressDTO.getId());
 
         if (validationResponse.getStatus() != HttpStatus.OK)
-            return ResponseEntity.status(validationResponse.getStatus()).body(validationResponse.getMessage());
+            return ResponseEntity.status(validationResponse.getStatus()).body(new ErrorResponse(validationResponse.getStatus(), validationResponse.getMessage()));
 
         try {
             AddressDTO updatedAddress = addressService.updateAddress(addressDTO);
@@ -80,6 +104,10 @@ public class AddressController {
 
     @DeleteMapping("/delete={id}")
     @Operation(summary = "Delete a Address", description = "Deletes a Address from the database")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Address deleted successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public ResponseEntity<?> deleteAddress(@Parameter(description = "Address ID") @PathVariable Long id) {
         try {
             addressService.deleteAddress(id);

@@ -50,29 +50,11 @@ public class SaleControllerTest {
         SaleDTOAdd saleDTOAdd = MockDTOs.newMockSaleDTOAdd();
         saleDTOAdd.setSaleProducts(null);
 
-        MvcResult result = mockMvc.perform(post("/sale/add")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(saleDTOAdd)))
-                .andExpect(status().isBadRequest())
-                .andReturn();
-
-        String jsonResponse = result.getResponse().getContentAsString();
-        String errorMessage = JsonPath.read(jsonResponse, "$.message");
-
-        assertEquals("Sale must have at least one product.", errorMessage);
+        validateAndExpectBadRequest("Sale must have at least one product.", saleDTOAdd);
 
         saleDTOAdd.setSaleProducts(new ArrayList<>());
 
-        result = mockMvc.perform(post("/sale/add")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(saleDTOAdd)))
-                .andExpect(status().isBadRequest())
-                .andReturn();
-
-        jsonResponse = result.getResponse().getContentAsString();
-        errorMessage = JsonPath.read(jsonResponse, "$.message");
-
-        assertEquals("Sale must have at least one product.", errorMessage);
+        validateAndExpectBadRequest("Sale must have at least one product.", saleDTOAdd);
     }
 
     @Test
@@ -80,29 +62,11 @@ public class SaleControllerTest {
         SaleDTOAdd saleDTOAdd = MockDTOs.newMockSaleDTOAdd();
         saleDTOAdd.setPaymentMethod(null);
 
-        MvcResult result = mockMvc.perform(post("/sale/add")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(saleDTOAdd)))
-                .andExpect(status().isBadRequest())
-                .andReturn();
-
-        String jsonResponse = result.getResponse().getContentAsString();
-        String errorMessage = JsonPath.read(jsonResponse, "$.message");
-
-        assertEquals("Sale must have a payment method.", errorMessage);
+        validateAndExpectBadRequest("Sale must have a payment method.", saleDTOAdd);
 
         saleDTOAdd.setPaymentMethod("");
 
-        result = mockMvc.perform(post("/sale/add")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(saleDTOAdd)))
-                .andExpect(status().isBadRequest())
-                .andReturn();
-
-        jsonResponse = result.getResponse().getContentAsString();
-        errorMessage = JsonPath.read(jsonResponse, "$.message");
-
-        assertEquals("Sale must have a payment method.", errorMessage);
+        validateAndExpectBadRequest("Sale must have a payment method.", saleDTOAdd);
     }
 
     @Test
@@ -110,29 +74,11 @@ public class SaleControllerTest {
         SaleDTOAdd saleDTOAdd = MockDTOs.newMockSaleDTOAdd();
         saleDTOAdd.setCustomerId(null);
 
-        MvcResult result = mockMvc.perform(post("/sale/add")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(saleDTOAdd)))
-                .andExpect(status().isBadRequest())
-                .andReturn();
-
-        String jsonResponse = result.getResponse().getContentAsString();
-        String errorMessage = JsonPath.read(jsonResponse, "$.message");
-
-        assertEquals("Sale must have a customer.", errorMessage);
+        validateAndExpectBadRequest("Sale must have a customer.", saleDTOAdd);
 
         saleDTOAdd.setCustomerId(0L);
 
-        result = mockMvc.perform(post("/sale/add")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(saleDTOAdd)))
-                .andExpect(status().isBadRequest())
-                .andReturn();
-
-        jsonResponse = result.getResponse().getContentAsString();
-        errorMessage = JsonPath.read(jsonResponse, "$.message");
-
-        assertEquals("Sale must have a customer.", errorMessage);
+        validateAndExpectBadRequest("Sale must have a customer.", saleDTOAdd);
     }
 
     @Test
@@ -140,29 +86,11 @@ public class SaleControllerTest {
         SaleDTOAdd saleDTOAdd = MockDTOs.newMockSaleDTOAdd();
         saleDTOAdd.setSellerId(null);
 
-        MvcResult result = mockMvc.perform(post("/sale/add")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(saleDTOAdd)))
-                .andExpect(status().isBadRequest())
-                .andReturn();
-
-        String jsonResponse = result.getResponse().getContentAsString();
-        String errorMessage = JsonPath.read(jsonResponse, "$.message");
-
-        assertEquals("Sale must have a seller.", errorMessage);
+        validateAndExpectBadRequest("Sale must have a seller.", saleDTOAdd);
 
         saleDTOAdd.setSellerId(0L);
 
-        result = mockMvc.perform(post("/sale/add")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(saleDTOAdd)))
-                .andExpect(status().isBadRequest())
-                .andReturn();
-
-        jsonResponse = result.getResponse().getContentAsString();
-        errorMessage = JsonPath.read(jsonResponse, "$.message");
-
-        assertEquals("Sale must have a seller.", errorMessage);
+        validateAndExpectBadRequest("Sale must have a seller.", saleDTOAdd);
     }
 
     @Test
@@ -170,16 +98,7 @@ public class SaleControllerTest {
         SaleDTOAdd saleDTOAdd = MockDTOs.newMockSaleDTOAdd();
         saleDTOAdd.getSaleProducts().get(0).setProductId(null);
 
-        MvcResult result = mockMvc.perform(post("/sale/add")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(saleDTOAdd)))
-                .andExpect(status().isBadRequest())
-                .andReturn();
-
-        String jsonResponse = result.getResponse().getContentAsString();
-        String errorMessage = JsonPath.read(jsonResponse, "$.message");
-
-        assertEquals("Sale product must have an ID.", errorMessage);
+        validateAndExpectBadRequest("Sale product must have an ID.", saleDTOAdd);
     }
 
     @Test
@@ -188,16 +107,7 @@ public class SaleControllerTest {
         saleDTOAdd.getSaleProducts().get(0).setProductId(1L);
         saleDTOAdd.getSaleProducts().get(1).setProductId(1L);
 
-        MvcResult result = mockMvc.perform(post("/sale/add")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(saleDTOAdd)))
-                .andExpect(status().isBadRequest())
-                .andReturn();
-
-        String jsonResponse = result.getResponse().getContentAsString();
-        String errorMessage = JsonPath.read(jsonResponse, "$.message");
-
-        assertEquals("Sale product cannot be added more than once.", errorMessage);
+        validateAndExpectBadRequest("Sale product cannot be added more than once.", saleDTOAdd);
     }
 
     @Test
@@ -205,29 +115,11 @@ public class SaleControllerTest {
         SaleDTOAdd saleDTOAdd = MockDTOs.newMockSaleDTOAdd();
         saleDTOAdd.getSaleProducts().get(0).setQuantity(null);
 
-        MvcResult result = mockMvc.perform(post("/sale/add")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(saleDTOAdd)))
-                .andExpect(status().isBadRequest())
-                .andReturn();
-
-        String jsonResponse = result.getResponse().getContentAsString();
-        String errorMessage = JsonPath.read(jsonResponse, "$.message");
-
-        assertEquals("Sale product quantity must be greater than 0.", errorMessage);
+        validateAndExpectBadRequest("Sale product quantity must be greater than 0.", saleDTOAdd);
 
         saleDTOAdd.getSaleProducts().get(0).setQuantity(0);
 
-        result = mockMvc.perform(post("/sale/add")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(saleDTOAdd)))
-                .andExpect(status().isBadRequest())
-                .andReturn();
-
-        jsonResponse = result.getResponse().getContentAsString();
-        errorMessage = JsonPath.read(jsonResponse, "$.message");
-
-        assertEquals("Sale product quantity must be greater than 0.", errorMessage);
+        validateAndExpectBadRequest("Sale product quantity must be greater than 0.", saleDTOAdd);
     }
 
     @Test
@@ -240,5 +132,18 @@ public class SaleControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(saleDTOAdd)))
                 .andExpect(status().isInternalServerError());
+    }
+
+    private void validateAndExpectBadRequest(String message, SaleDTOAdd saleDTOAdd) throws Exception {
+        MvcResult result = mockMvc.perform(post("/sale/add")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(saleDTOAdd)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        String jsonResponse = result.getResponse().getContentAsString();
+        String errorMessage = JsonPath.read(jsonResponse, "$.message");
+
+        assertEquals(message, errorMessage);
     }
 }
