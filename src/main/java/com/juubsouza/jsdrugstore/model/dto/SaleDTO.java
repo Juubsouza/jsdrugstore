@@ -29,4 +29,14 @@ public class SaleDTO {
     private Long customerId;
 
     private Long sellerId;
+
+    public SaleDTO(Long id, String paymentMethod, String paymentStatus, String shippingStatus, BigDecimal total, Long customerId, Long sellerId) {
+        this.id = id;
+        this.paymentMethod = paymentMethod;
+        this.paymentStatus = paymentStatus;
+        this.shippingStatus = shippingStatus;
+        this.total = total;
+        this.customerId = customerId;
+        this.sellerId = sellerId;
+    }
 }

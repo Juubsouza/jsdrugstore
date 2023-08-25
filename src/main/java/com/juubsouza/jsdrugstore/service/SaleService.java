@@ -94,7 +94,15 @@ public class SaleService {
     }
 
     public List<SaleDTO> findAllSalesForCustomer(Long customerId) {
-        return saleRepository.findAllDTOsByCustomerId(customerId);
+        List<SaleDTO> saleDTOs = saleRepository.findAllDTOsByCustomerId(customerId);
+
+        for (SaleDTO saleDTO : saleDTOs) {
+            List<SaleProductDTO> saleProductDTOs = saleProductRepository.findAllDTOsBySaleId(saleDTO.getId());
+
+            saleDTO.setSaleProducts(saleProductDTOs);
+        }
+
+        return saleDTOs;
     }
 
     private void calculateTotal(List<SaleProductDTOAdd> products, Sale sale) {

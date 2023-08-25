@@ -11,6 +11,9 @@ import java.util.List;
 @Repository
 public interface SaleRepository extends JpaRepository<Sale, Long> {
 
-    @Query("SELECT new com.juubsouza.jsdrugstore.model.dto.SaleDTO(s.id, s.paymentMethod, s.paymentStatus, s.shippingStatus, s.total, s.customer.id, s.seller.id) FROM Sale s")
+    @Query("SELECT new com.juubsouza.jsdrugstore.model.dto.SaleDTO(s.id, s.paymentMethod, s.paymentStatus, " +
+            "s.shippingStatus, s.total, s.customer.id, s.seller.id) " +
+            "FROM Sale s " +
+            "WHERE s.customer.id = ?1")
     List<SaleDTO> findAllDTOsByCustomerId(Long id);
 }
