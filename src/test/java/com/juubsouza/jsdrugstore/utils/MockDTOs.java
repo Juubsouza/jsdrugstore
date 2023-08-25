@@ -1,9 +1,12 @@
 package com.juubsouza.jsdrugstore.utils;
 
+import com.juubsouza.jsdrugstore.model.*;
 import com.juubsouza.jsdrugstore.model.dto.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class MockDTOs {
 
@@ -84,7 +87,33 @@ public class MockDTOs {
         saleDTOAdd.setPaymentMethod("CASH");
         saleDTOAdd.setCustomerId(1L);
         saleDTOAdd.setSellerId(1L);
+
+        List<SaleProductDTOAdd> products = new ArrayList<>();
+
+        SaleProductDTOAdd saleProductDTOAdd = new SaleProductDTOAdd();
+        saleProductDTOAdd.setProductId(1L);
+        saleProductDTOAdd.setQuantity(1);
+
+        products.add(saleProductDTOAdd);
+
+        SaleProductDTOAdd saleProductDTOAdd2 = new SaleProductDTOAdd();
+        saleProductDTOAdd2.setProductId(2L);
+        saleProductDTOAdd2.setQuantity(1);
+
+        products.add(saleProductDTOAdd2);
+
+        saleDTOAdd.setSaleProducts(products);
+
         return saleDTOAdd;
+    }
+
+    public static List<Product> newMockProducts() {
+        List<Product> products = new ArrayList<>();
+
+        products.add(newMockProduct());
+        products.add(newMockProduct(2L));
+
+        return products;
     }
 
     public static SellerDTO newMockSellerDTO() {
@@ -104,5 +133,72 @@ public class MockDTOs {
         sellerDTOAdd.setShift("DAY");
         sellerDTOAdd.setAdmissionDate(new Date());
         return sellerDTOAdd;
+    }
+
+    public static Customer newMockCustomer() {
+        Customer customer = new Customer();
+        customer.setId(1L);
+        customer.setFirstName("John");
+        customer.setLastName("Doe");
+        customer.setEmail("johndoe@email.com");
+
+        return customer;
+    }
+
+    public static Seller newMockSeller() {
+        Seller seller = new Seller();
+        seller.setId(1L);
+        seller.setFirstName("John");
+        seller.setLastName("Doe");
+        seller.setShift("DAY");
+        seller.setAdmissionDate(new Date());
+
+        return seller;
+    }
+
+    public static Price newMockPrice() {
+        Price price = new Price();
+        price.setId(1L);
+        price.setPrice(BigDecimal.valueOf(10.0));
+
+        return price;
+    }
+
+    public static Product newMockProduct() {
+        Product product = new Product();
+        product.setId(1L);
+        product.setName("Test Product");
+        product.setManufacturer("Test Manufacturer");
+        product.setPrice(newMockPrice());
+        product.setStock(newMockStock());
+
+        return product;
+    }
+
+    public static Product newMockProduct(Long id) {
+        Product product = new Product();
+        product.setId(id);
+        product.setName("Test Product");
+        product.setManufacturer("Test Manufacturer");
+        product.setPrice(newMockPrice());
+        product.setStock(newMockStock());
+
+        return product;
+    }
+
+    public static Stock newMockStock() {
+        Stock stock = new Stock();
+        stock.setId(1L);
+        stock.setStock(100);
+
+        return stock;
+    }
+
+    public static Stock newMockStock(Long id) {
+        Stock stock = new Stock();
+        stock.setId(id);
+        stock.setStock(100);
+
+        return stock;
     }
 }
