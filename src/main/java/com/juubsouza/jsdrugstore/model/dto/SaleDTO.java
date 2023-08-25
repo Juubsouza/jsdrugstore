@@ -22,7 +22,7 @@ public class SaleDTO {
 
     private String shippingStatus = "PENDING";
 
-    private List<SaleProductDTOAdd> saleProducts;
+    private List<SaleProductDTO> saleProducts;
 
     private BigDecimal total;
 

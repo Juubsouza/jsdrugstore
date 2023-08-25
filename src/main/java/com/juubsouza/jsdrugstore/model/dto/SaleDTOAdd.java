@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(name = "SaleDTO", description = "DTO for adding a sale.")
+@Schema(name = "SaleDTOAdd", description = "DTO for adding a sale.")
 public class SaleDTOAdd {
 
     private String paymentMethod = "CASH";

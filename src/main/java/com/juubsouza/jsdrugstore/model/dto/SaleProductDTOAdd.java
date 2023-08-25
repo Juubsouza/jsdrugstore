@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(name = "SaleProductDTO", description = "DTO for adding a products to a sale.")
+@Schema(name = "SaleProductDTOAdd", description = "DTO for adding a products to a sale.")
 public class SaleProductDTOAdd {
 
     private Integer quantity;

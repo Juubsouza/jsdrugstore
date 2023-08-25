@@ -10,10 +10,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Schema(name = "SaleProductDTO", description = "DTO for retrieving products from a sale.")
 public class SaleProductDTO {
-    
+
     private Long id;
 
     private Integer quantity;
 
     private Long productId;
+
+    private String productName;
 }

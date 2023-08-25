@@ -5,8 +5,13 @@ import com.juubsouza.jsdrugstore.model.dto.SaleDTOAdd;
 import com.juubsouza.jsdrugstore.model.dto.SaleProductDTOAdd;
 import com.juubsouza.jsdrugstore.service.SaleService;
 import com.juubsouza.jsdrugstore.utils.ValidationResponse;
+import com.juubsouza.jsdrugstore.utils.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,12 +36,19 @@ public class SaleController {
 
     @PostMapping("/add")
     @Operation(summary = "Add a new sale", description = "Adds a new sale to the database")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Sale added successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = SaleDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public ResponseEntity<?> addSale(@Parameter @RequestBody SaleDTOAdd saleDTOAdd) {
         ValidationResponse validationResponse = validateFields(saleDTOAdd.getPaymentMethod(), saleDTOAdd.getSaleProducts(),
                 saleDTOAdd.getCustomerId(), saleDTOAdd.getSellerId());
 
         if (validationResponse.getStatus() != HttpStatus.OK)
-            return ResponseEntity.status(validationResponse.getStatus()).body(validationResponse.getMessage());
+            return ResponseEntity.status(validationResponse.getStatus()).body(new ErrorResponse(validationResponse.getStatus(), validationResponse.getMessage()));
 
         try {
             SaleDTO addedSale = saleService.addSale(saleDTOAdd);

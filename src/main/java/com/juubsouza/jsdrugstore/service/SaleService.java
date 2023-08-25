@@ -3,6 +3,7 @@ package com.juubsouza.jsdrugstore.service;
 import com.juubsouza.jsdrugstore.model.*;
 import com.juubsouza.jsdrugstore.model.dto.SaleDTO;
 import com.juubsouza.jsdrugstore.model.dto.SaleDTOAdd;
+import com.juubsouza.jsdrugstore.model.dto.SaleProductDTO;
 import com.juubsouza.jsdrugstore.model.dto.SaleProductDTOAdd;
 import com.juubsouza.jsdrugstore.repository.*;
 import jakarta.persistence.EntityNotFoundException;
@@ -82,13 +83,19 @@ public class SaleService {
         saleDTO.setTotal(sale.getTotal());
         saleDTO.setCustomerId(sale.getCustomer().getId());
         saleDTO.setSellerId(sale.getSeller().getId());
-        saleDTO.setSaleProducts(saleDTOAdd.getSaleProducts());
+
+        List<SaleProductDTO> saleProductDTOList = saleProductRepository.findAllDTOsBySaleId(sale.getId());
+
+        saleDTO.setSaleProducts(saleProductDTOList);
 
         updateStocks(saleDTOAdd.getSaleProducts());
 
         return saleDTO;
     }
 
+    public List<SaleDTO> findAllSalesForCustomer(Long customerId) {
+        return saleRepository.findAllDTOsByCustomerId(customerId);
+    }
 
     private void calculateTotal(List<SaleProductDTOAdd> products, Sale sale) {
         BigDecimal total = BigDecimal.ZERO;
